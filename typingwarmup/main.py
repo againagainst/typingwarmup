@@ -1,19 +1,8 @@
 import click
 import text
-import random
-import os
 
-
-def read_exercise(ex_path: str, name: str) -> str:
-    filename = os.path.join(ex_path, "exercises", name)
-    with open(filename, "r") as fp:
-        return fp.read()
-
-
-def shuffle_exercise(text: str) -> str:
-    result = text.split("\n\n")
-    random.shuffle(result)
-    return "\n\n".join(result)
+import ui
+import util
 
 
 def typing_warmup(exercise) -> None:
@@ -25,15 +14,12 @@ def typing_warmup(exercise) -> None:
             idx += 1
             continue
 
-        click.clear()
-        click.echo(text.header)
-        click.echo(
-            click.style(exercise[:idx], fg="white")
-            + click.style(
-                exercise[idx], fg="black", bg="red" if highlight_error else "white"
-            )
-            + click.style(exercise[idx + 1 :], fg="black")
-        )
+        ui.clear()
+        ui.display_text(text.header)
+        ui.display_bright(exercise[:idx], nl=False)
+        ui.display_highlighted(exercise[idx], error=highlight_error, nl=False)
+        ui.display_dimmed(exercise[idx + 1 :], nl=True)
+
         next_char = click.getchar(echo=False)
         if next_char == exercise[idx]:
             idx += 1
@@ -48,20 +34,27 @@ def typing_warmup(exercise) -> None:
 @click.option("--random/--no-random", "-r", default=False)
 @click.argument("name", default="1", nargs=1)
 @click.argument("ex_path", envvar="WARMUP_EX_PATH", type=click.Path())
-def main(random, name, ex_path) -> None:
+def main(random, name, ex_path) -> int:
     try:
-        exercise = read_exercise(ex_path, name)
-        if random:
-            exercise = shuffle_exercise(exercise)
-        click.clear()
-        errcount = typing_warmup(exercise)
-    except KeyboardInterrupt:
-        click.echo(text.goodbye)
+        exercise = util.read_exercise(ex_path, name)
     except OSError:
         click.echo("The excercise `{0}` is not found".format(name))
+        return 1
+
+    if random:
+        exercise = util.shuffle_exercise(exercise)
+    try:
+        ui.start()
+        errcount = typing_warmup(exercise)
+    except KeyboardInterrupt:
+        ui.stop()
+        click.echo(text.goodbye)
     else:
+        ui.stop()
         click.echo(text.cheers.format(errors=errcount))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    exit(exit_code)
