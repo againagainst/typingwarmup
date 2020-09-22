@@ -1,11 +1,11 @@
 import click
-import text
 
+import text
 import ui
 import util
 
 
-def typing_warmup(exercise) -> None:
+def typing_warmup(exercise: str) -> None:
     idx = 0
     highlight_error = False
     errors = 0
@@ -20,7 +20,7 @@ def typing_warmup(exercise) -> None:
         ui.display_highlighted(exercise[idx], error=highlight_error, nl=False)
         ui.display_dimmed(exercise[idx + 1 :], nl=True)
 
-        next_char = click.getchar(echo=False)
+        next_char = ui.getkey()
         if next_char == exercise[idx]:
             idx += 1
             highlight_error = False
@@ -45,7 +45,10 @@ def main(random, name, ex_path) -> int:
         exercise = util.shuffle_exercise(exercise)
     try:
         ui.start()
-        errcount = typing_warmup(exercise)
+        errcount = 0
+        ui.display_header(text.header)
+        ui.getkey()
+        # errcount = typing_warmup(exercise)
     except KeyboardInterrupt:
         ui.stop()
         click.echo(text.goodbye)

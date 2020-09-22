@@ -1,17 +1,31 @@
 import click
+import curses
+
+
+stdscr = curses.initscr()
 
 
 def start() -> None:
-    clear()
+    curses.noecho()
+    curses.cbreak()
+    stdscr.keypad(True)
+    # clear()
+    return stdscr
 
 
 def stop() -> None:
-    clear()
-    # print("ui stopped")
+    curses.nocbreak()
+    stdscr.keypad(False)
+    curses.echo()
+    curses.endwin()
 
 
 def clear() -> None:
-    click.clear()
+    stdscr.clear()
+
+
+def display_header(text: str) -> None:
+    stdscr.addstr(0, 0, text, curses.A_REVERSE)
 
 
 def display_bright(text: str, nl: bool = False) -> None:
@@ -28,4 +42,9 @@ def display_dimmed(text: str, nl: bool = False) -> None:
 
 
 def display_text(text: str) -> None:
-    click.echo(text)
+    stdscr.addstr(0, 0, text)
+    # click.echo(text)
+
+
+def getkey() -> str:
+    return stdscr.getkey()
