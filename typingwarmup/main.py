@@ -1,63 +1,65 @@
-import click
-
-import text
-import ui
-import util
+import curses
 
 
-def typing_warmup(exercise: str) -> None:
-    idx = 0
-    highlight_error = False
-    errors = 0
-    while idx < len(exercise):
-        if exercise[idx] == "\n":
-            idx += 1
-            continue
+def curses_menu(stdscr):
+    k = 0
 
-        ui.clear()
-        ui.display_text(text.header)
-        ui.display_bright(exercise[:idx], nl=False)
-        ui.display_highlighted(exercise[idx], error=highlight_error, nl=False)
-        ui.display_dimmed(exercise[idx + 1 :], nl=True)
+    # Clear and refresh the screen for a blank canvas
+    stdscr.clear()
+    stdscr.refresh()
 
-        next_char = ui.getkey()
-        if next_char == exercise[idx]:
-            idx += 1
-            highlight_error = False
-        else:
-            highlight_error = True
-            errors += 1
-    return errors
+    # Start colors in curses
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+    # Loop where k is the last character pressed
+    while k != curses.KEY_F10:
+
+        # Initialization
+        stdscr.clear()
+        height, width = stdscr.getmaxyx()
+
+        # Declaration of strings
+        text = """asd asd asd asd asd asd asd asd asd asd 
+
+kl; kl; kl; kl; kl; kl; kl; kl; kl; kl; 
+
+fg fg fg fg fg fg fg fg fg fg fg fg fg 
+
+jh jh jh jh jh jh jh jh jh jh jh jh jh
+"""
+        statusbarstr = "Press 'ESC' to exit"
+
+        # Render status bar
+        stdscr.attron(curses.color_pair(3))
+        stdscr.addstr(height - 1, 0, statusbarstr)
+        stdscr.addstr(
+            height - 1, len(statusbarstr), " " * (width - len(statusbarstr) - 1)
+        )
+        stdscr.attroff(curses.color_pair(3))
+
+        # Rendering title
+        stdscr.attron(curses.color_pair(1))
+        render(stdscr, text, 0, 0)
+        stdscr.attroff(curses.color_pair(1))
+
+        # Refresh the screen
+        stdscr.refresh()
+
+        # Wait for next input
+        k = stdscr.getch()
 
 
-@click.command()
-@click.option("--random/--no-random", "-r", default=False)
-@click.argument("name", default="1", nargs=1)
-@click.argument("ex_path", envvar="WARMUP_EX_PATH", type=click.Path())
-def main(random, name, ex_path) -> int:
-    try:
-        exercise = util.read_exercise(ex_path, name)
-    except OSError:
-        click.echo("The excercise `{0}` is not found".format(name))
-        return 1
+def render(stdscr, text, start_y, start_x=0):
+    for (i, line) in enumerate(text.split("\n")):
+        stdscr.addstr(start_y + i, start_x, line)
 
-    if random:
-        exercise = util.shuffle_exercise(exercise)
-    try:
-        ui.start()
-        errcount = 0
-        ui.display_header(text.header)
-        ui.getkey()
-        # errcount = typing_warmup(exercise)
-    except KeyboardInterrupt:
-        ui.stop()
-        click.echo(text.goodbye)
-    else:
-        ui.stop()
-        click.echo(text.cheers.format(errors=errcount))
-    return 0
+
+def main():
+    curses.wrapper(curses_menu)
 
 
 if __name__ == "__main__":
-    exit_code = main()
-    exit(exit_code)
+    main()
