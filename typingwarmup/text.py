@@ -1,3 +1,3 @@
-header = "Welcome to the Typing Warmup!\n(Use Ctrl + C to exit)\n"
-cheers = "Good job! Errors: {errors}"
-goodbye = "Bye!"
+status_bar = "Typing Warmup | Press 'F10' to exit"
+goodbye = "Good job! Errors: {errors}"
+err_not_found = "The excercise `{0}` is not found"
