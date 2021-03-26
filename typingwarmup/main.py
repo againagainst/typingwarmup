@@ -6,46 +6,47 @@ from ui import UI
 import util
 
 
-def curses_main(stdscr, exercise):
-    k = 0
-
-    ui = UI(stdscr)
-    ui.start()
-
-    # Loop where k is the last character pressed
-    while k != curses.KEY_F10:
-        ui.clear()
-        ui.render_line_in_status_bar(text.status_bar)
-        ui.render(exercise, UI.pair_bright, 0)
-        # Refresh the screen
-        ui.refresh()
-        # Wait for next input
-        k = ui.input()
-    return 1
-
-
-def typing_warmup(stdscr, exercise):
-    next_char = 0
+def typing_warmup_2(stdscr, exercise):
     idx = 0
     highlight_error = False
     errors = 0
+
     ui = UI(stdscr)
     ui.start()
+    while idx < 5:
+        next_char = ui.input()
+        ui.render_highlighted(next_char, error=highlight_error)
+        idx += 1
+    return errors
 
-    while idx < len(exercise) or next_char != curses.KEY_F10:
+
+def typing_warmup(stdscr, exercise):
+    next_char = ""
+    idx = 0
+    highlight_error = False
+    errors = 0
+
+    ui = UI(stdscr)
+    ui.start()
+    ui.render_line_in_status_bar(text.status_bar)
+    ui.render_dimmed(exercise)
+
+    while idx < len(exercise) and next_char != "KEY_F(10)":
         if exercise[idx] == "\n":
             idx += 1
+            ui.next_row()
             continue
 
-        ui.clear()
-        ui.render_bright(exercise[:idx], nl=False)
-        ui.render_highlighted(exercise[idx], error=highlight_error, nl=False)
-        ui.render_dimmed(exercise[idx + 1 :], nl=True)
+        ui.render_highlighted(exercise[idx], error=highlight_error)
 
         next_char = ui.input()
         if next_char == exercise[idx]:
+            ui.render_bright(exercise[idx])
             idx += 1
+            ui.next_col()
             highlight_error = False
+        elif next_char == "KEY_RESIZE":
+            pass  # fix later
         else:
             highlight_error = True
             errors += 1
@@ -66,8 +67,9 @@ def main(random, name, ex_path) -> int:
     if random:
         exercise = util.shuffle_exercise(exercise)
 
-    errcount = curses.wrapper(curses_main, exercise)
+    errcount = curses.wrapper(typing_warmup, exercise)
     click.echo(text.goodbye.format(errors=errcount))
+    return 0
 
 
 if __name__ == "__main__":
