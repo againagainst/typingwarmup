@@ -2,8 +2,8 @@ import click
 import curses
 
 from app import typing_warmup
+from model import Model
 import text
-import util
 
 
 @click.command()
@@ -12,13 +12,10 @@ import util
 @click.argument("ex_path", envvar="WARMUP_EX_PATH", type=click.Path())
 def main(random, name, ex_path) -> int:
     try:
-        exercise = util.read_exercise(ex_path, name)
+        exercise = Model(ex_path, name, random)
     except OSError:
         click.echo(text.err_not_found.format(name))
         return 1
-
-    if random:
-        exercise = util.shuffle_exercise(exercise)
 
     errcount = curses.wrapper(typing_warmup, exercise)
     click.echo(text.goodbye.format(errors=errcount))
