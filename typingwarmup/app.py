@@ -3,6 +3,12 @@ from model import Model
 from ui import UI
 
 
+def is_input_corect(exercise: Model, input_char: str) -> bool:
+    if exercise.is_end_of_line():
+        return input_char in {" ", "\t", "\n"}
+    return exercise.current_char_is(input_char)
+
+
 def typing_warmup(stdscr, exercise: Model, exit_key="KEY_F(10)"):
     next_char = ""
     highlight_error = False
@@ -22,7 +28,7 @@ def typing_warmup(stdscr, exercise: Model, exit_key="KEY_F(10)"):
         ui.render_highlighted(exercise.current_char(), error=highlight_error)
 
         next_char = ui.input()
-        if exercise.current_char_is(next_char):
+        if is_input_corect(exercise, next_char):
             ui.render_bright(exercise.current_char())
             exercise.next_char()
             ui.next_col()
