@@ -26,6 +26,9 @@
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
             "args": ["test"],
+            "env": {
+                "WARMUP_EX_PATH": "${workspaceFolder}"
+            }
         }
     ]
 }

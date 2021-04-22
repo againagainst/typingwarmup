@@ -1,4 +1,3 @@
-import text
 from model import Model
 from ui import UI
 
@@ -9,37 +8,30 @@ def is_input_corect(exercise: Model, input_char: str) -> bool:
     return exercise.current_char_is(input_char)
 
 
-def typing_warmup(stdscr, exercise: Model, exit_key="KEY_F(10)"):
-    next_char = ""
-    highlight_error = False
-    errors = 0
+def typing_warmup(stdscr, name: str, ex_path: str, random: bool, exit_key="KEY_F(10)"):
+    input_char = ""
 
-    ui = UI(stdscr)
+    model = Model(ex_path, name, random)
+    ui = UI(stdscr, model)
     ui.start()
-    ui.render_line_in_status_bar(text.status_bar(errors=errors))
-    ui.render_dimmed(exercise.text)
+    ui.render_model()
 
-    while not exercise.done() and next_char != exit_key:
-        if exercise.current_char_is_new_line():
-            exercise.next_char()
-            ui.next_row()
+    while not model.done() and input_char != exit_key:
+        ui.render_model()
+
+        if model.current_char_is_new_line():
+            model.next_row()
             continue
 
-        ui.render_highlighted(exercise.current_char(), error=highlight_error)
-
-        next_char = ui.input()
-        if is_input_corect(exercise, next_char):
-            ui.render_bright(exercise.current_char())
-            exercise.next_char()
-            ui.next_col()
-            highlight_error = False
-        elif next_char == "KEY_RESIZE":
-            pass  # fix later
-        elif next_char == exit_key:
+        input_char = ui.input()
+        if is_input_corect(model, input_char):
+            model.next_col()
+        elif input_char == "KEY_RESIZE":
+            model.is_to_render = True
+        elif input_char == exit_key:
             pass
         else:
-            highlight_error = True
-            errors += 1
-        ui.render_line_in_status_bar(text.status_bar(errors=errors))
+            model.add_error()
 
-    return errors
+    ui.stop()
+    return model.errors
