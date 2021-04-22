@@ -41,13 +41,13 @@ class UI:
         self.render_cursor()
         self.model.is_to_render = False
 
-    def render_dimmed(self, row, col, char):
+    def render_dimmed(self, row, col, char) -> None:
         self.stdscr.addch(row, col, char, curses.A_DIM)
 
-    def render_bright(self, row, col, char):
+    def render_bright(self, row, col, char) -> None:
         self.stdscr.addch(row, col, char, curses.A_BOLD)
 
-    def render_cursor(self):
+    def render_cursor(self) -> None:
         self.stdscr.addch(
             self.model.cursor_row,
             self.model.cursor_col,
@@ -56,7 +56,7 @@ class UI:
         )
         self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
 
-    def render_line_in_status_bar(self, text):
+    def render_line_in_status_bar(self, text) -> None:
         self.stdscr.attron(curses.color_pair(UI.pair_status))
         self.stdscr.addstr(self.max_row - 1, 0, text)
         filler = " " * (self.max_col - len(text) - 1)
