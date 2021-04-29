@@ -25,9 +25,9 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
             continue
 
         input_char = ui.input()
-        if model.is_error:
+        if model.wrong_input:
             if input_char == settings.clear_key:
-                model.clear_error()
+                model.clear_wrong_input()
             else:
                 continue
 
@@ -38,7 +38,7 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
         elif input_char == settings.exit_key:
             pass
         else:
-            model.add_error()
+            model.add_error(input_char)
 
     ui.stop()
     return model.errors

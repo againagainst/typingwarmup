@@ -1,8 +1,10 @@
 import random
 import os
+from functools import wraps
 
 
 def render(method):
+    @wraps(method)
     def wrapper(self, *args):
         self.is_to_render = True
         return method(self, *args)
@@ -25,7 +27,7 @@ class Model:
         self.cursor_col = 0
 
         self.errors = 0
-        self.is_error = False
+        self.wrong_input = None
 
     @render
     def next_row(self) -> None:
@@ -39,13 +41,13 @@ class Model:
         self.position += 1
 
     @render
-    def add_error(self) -> None:
+    def add_error(self, wrong_input) -> None:
         self.errors += 1
-        self.is_error = True
+        self.wrong_input = wrong_input
 
     @render
-    def clear_error(self) -> None:
-        self.is_error = False
+    def clear_wrong_input(self) -> None:
+        self.wrong_input = None
 
     def done(self) -> bool:
         return self.position == len(self.text)
