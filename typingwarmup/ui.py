@@ -37,7 +37,10 @@ class UI:
                 else:
                     self.render_dimmed(row, col, char)
 
-        self.render_line_in_status_bar(text.status_bar(errors=self.model.errors))
+        status = text.status_bar(
+            errors=self.model.errors, is_err_state=self.model.is_error
+        )
+        self.render_line_in_status_bar(status)
         self.render_cursor()
         self.model.is_to_render = False
 

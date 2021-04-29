@@ -2,6 +2,14 @@ import random
 import os
 
 
+def render(method):
+    def wrapper(self, *args):
+        self.is_to_render = True
+        return method(self, *args)
+
+    return wrapper
+
+
 class Model:
     def __init__(self, ex_path: str, name: str, shuffle=False):
         self.text = read_exercise(ex_path, name)
@@ -10,12 +18,34 @@ class Model:
         if shuffle:
             self.text = shuffle_exercise(self.text)
 
+        self.is_to_render = True
+
         self.position = 0
         self.cursor_row = 0
         self.cursor_col = 0
+
         self.errors = 0
         self.is_error = False
-        self.is_to_render = True
+
+    @render
+    def next_row(self) -> None:
+        self.cursor_row += 1
+        self.cursor_col = 0
+        self.position += 1
+
+    @render
+    def next_col(self) -> None:
+        self.cursor_col += 1
+        self.position += 1
+
+    @render
+    def add_error(self) -> None:
+        self.errors += 1
+        self.is_error = True
+
+    @render
+    def clear_error(self) -> None:
+        self.is_error = False
 
     def done(self) -> bool:
         return self.position == len(self.text)
@@ -33,22 +63,9 @@ class Model:
         return self.current_char_is("\t")
 
     def is_before_curent(self, row, col) -> bool:
-        return (row < self.cursor_row) or (row == self.cursor_row and col < self.cursor_col)
-
-    def next_row(self) -> None:
-        self.cursor_row += 1
-        self.cursor_col = 0
-        self.position += 1
-        self.is_to_render = True
-
-    def next_col(self) -> None:
-        self.cursor_col += 1
-        self.position += 1
-        self.is_to_render = True
-
-    def add_error(self) -> None:
-        self.errors += 1
-        self.is_to_render = True
+        return (row < self.cursor_row) or (
+            row == self.cursor_row and col < self.cursor_col
+        )
 
 
 def read_exercise(ex_path: str, name: str) -> str:

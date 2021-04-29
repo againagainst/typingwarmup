@@ -1,14 +1,15 @@
 from model import Model
 from ui import UI
+import settings
 
 
-def is_input_corect(exercise: Model, input_char: str) -> bool:
-    if exercise.is_end_of_line():
+def is_input_corect(model: Model, input_char: str) -> bool:
+    if model.is_end_of_line():
         return input_char in {" ", "\t", "\n"}
-    return exercise.current_char_is(input_char)
+    return model.current_char_is(input_char)
 
 
-def typing_warmup(stdscr, name: str, ex_path: str, random: bool, exit_key="KEY_F(10)"):
+def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
     input_char = ""
 
     model = Model(ex_path, name, random)
@@ -16,7 +17,7 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool, exit_key="KEY_F
     ui.start()
     ui.render_model()
 
-    while not model.done() and input_char != exit_key:
+    while not model.done() and input_char != settings.exit_key:
         ui.render_model()
 
         if model.current_char_is_new_line():
@@ -24,11 +25,17 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool, exit_key="KEY_F
             continue
 
         input_char = ui.input()
-        if is_input_corect(model, input_char):
+        if model.is_error:
+            if input_char == settings.clear_key:
+                model.clear_error()
+            else:
+                continue
+
+        elif is_input_corect(model, input_char):
             model.next_col()
         elif input_char == "KEY_RESIZE":
             model.is_to_render = True
-        elif input_char == exit_key:
+        elif input_char == settings.exit_key:
             pass
         else:
             model.add_error()
