@@ -1,7 +1,7 @@
 import settings
 
 app_name = "Typing Warmup"
-goodbye = "Good job! Errors: {errors}"
+goodbye = "Good job! Errors, total: {error_count}, statistics:"
 err_not_found = "The excercise `{0}` is not found"
 
 

@@ -2,6 +2,8 @@ import random
 import os
 from functools import wraps
 
+from stats import Stats
+
 
 def render(method):
     @wraps(method)
@@ -26,7 +28,7 @@ class Model:
         self.cursor_row = 0
         self.cursor_col = 0
 
-        self.errors = 0
+        self.stats = Stats()
         self.wrong_input = None
 
     @render
@@ -42,7 +44,7 @@ class Model:
 
     @render
     def add_error(self, wrong_input) -> None:
-        self.errors += 1
+        self.stats.add_error(expected=self.current_char(), actual=wrong_input)
         self.wrong_input = wrong_input
 
     @render

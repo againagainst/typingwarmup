@@ -40,7 +40,8 @@ class UI:
                     self.render_dimmed(row, col, char)
 
         status = text.status_bar(
-            errors=self.model.errors, is_err_state=bool(self.model.wrong_input)
+            errors=self.model.stats.error_count(),
+            is_err_state=bool(self.model.wrong_input),
         )
         self.render_line_in_status_bar(status)
         if self.model.wrong_input:
@@ -57,19 +58,13 @@ class UI:
 
     def render_cursor(self) -> None:
         self.stdscr.addch(
-            self.model.cursor_row,
-            self.model.cursor_col,
-            self.model.current_char()
+            self.model.cursor_row, self.model.cursor_col, self.model.current_char()
         )
         self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
 
     def render_wrong_input(self, wrong_input) -> None:
         self.stdscr.attron(curses.color_pair(UI.error_color_pair))
-        self.stdscr.addch(
-            self.model.cursor_row,
-            self.model.cursor_col,
-            wrong_input
-        )
+        self.stdscr.addch(self.model.cursor_row, self.model.cursor_col, wrong_input)
         self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
         self.stdscr.attroff(curses.color_pair(UI.error_color_pair))
 

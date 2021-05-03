@@ -41,4 +41,4 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
             model.add_error(input_char)
 
     ui.stop()
-    return model.errors
+    return model.stats
