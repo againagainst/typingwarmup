@@ -3,6 +3,8 @@ import settings
 app_name = "Typing Warmup"
 goodbye = "Good job! Errors, total: {error_count}, statistics:"
 err_not_found = "The excercise `{0}` is not found"
+expected_key_stat = "With `{0}` key: {1} errors, details:\n"
+actual_key_stat = "  pressed '{0}': {1} times\n"
 
 
 def status_bar(errors=None, is_err_state=False):

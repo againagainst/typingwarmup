@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import text
+
 
 class Stats:
     def __init__(self):
@@ -13,8 +15,10 @@ class Stats:
 
     def formatted(self) -> str:
         result = ""
-        for act, exp_dict in self.data.items():
-            for exp, count in exp_dict.items():
-                #                                  {2:02d}
-                result += "'{1}' instead of '{0}': {2}\n".format(act, exp, count)
+        for exp, act_dict in self.data.items():
+            errors_on_key = sum(act_dict.values())
+            result += text.expected_key_stat.format(exp, errors_on_key)
+            for act, count in act_dict.items():
+                result += text.actual_key_stat.format(act, count)
+            result += "\n"
         return result
