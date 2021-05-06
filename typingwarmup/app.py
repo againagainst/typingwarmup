@@ -1,12 +1,19 @@
+import text
+import settings
 from model import Model
 from ui import UI
-import settings
 
 
 def is_input_corect(model: Model, input_char: str) -> bool:
     if model.is_end_of_line():
         return input_char in {" ", "\t", "\n"}
     return model.current_char_is(input_char)
+
+
+def escape_key(key: str) -> str:
+    if len(key) == 1:
+        return key
+    return text.special_keymap.get(key, "⍰")
 
 
 def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
@@ -38,7 +45,7 @@ def typing_warmup(stdscr, name: str, ex_path: str, random: bool):
         elif input_char == settings.exit_key:
             pass
         else:
-            model.add_error(input_char)
+            model.add_error(escape_key(input_char))
 
     ui.stop()
     return model.stats
