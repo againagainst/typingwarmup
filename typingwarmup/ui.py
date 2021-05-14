@@ -58,7 +58,10 @@ class UI:
 
     def render_cursor(self) -> None:
         self.stdscr.addch(
-            self.model.cursor_row, self.model.cursor_col, self.model.current_char()
+            self.model.cursor_row,
+            self.model.cursor_col,
+            self.model.current_char(),
+            curses.A_DIM,
         )
         self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
 
