@@ -4,5 +4,6 @@
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": ["--target-version", "py38"],
-    "python.terminal.activateEnvironment": false
+    "python.terminal.activateEnvironment": false,
+    "python.analysis.extraPaths": ["typingwarmup"]
 }
