@@ -12,20 +12,11 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "TypingWarmup: SCRATCH",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/typingwarmup/scratch.py",
-            "console": "integratedTerminal"
-        }
-        ,
-        {
             "name": "TypingWarmup: Main",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
-            "args": ["test"],
             "env": {
                 "WARMUP_EX_PATH": "${workspaceFolder}"
             }

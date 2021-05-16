@@ -43,7 +43,7 @@ class Model:
         self.position += 1
 
     @render
-    def add_error(self, wrong_input) -> None:
+    def add_error(self, wrong_input: str) -> None:
         self.stats.add_error(expected=self.current_char(), actual=wrong_input)
         self.wrong_input = wrong_input
 
@@ -66,7 +66,7 @@ class Model:
     def is_end_of_line(self) -> bool:
         return self.current_char_is("\t")
 
-    def is_before_curent(self, row, col) -> bool:
+    def is_before_curent(self, row: int, col: int) -> bool:
         return (row < self.cursor_row) or (
             row == self.cursor_row and col < self.cursor_col
         )
