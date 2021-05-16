@@ -20,8 +20,8 @@ def escape_key(key: str) -> str:
     return text.special_keymap.get(key, text.unknown_symbol)
 
 
-def typing_warmup(stdscr, ex_path: str) -> Optional[Stats]:
-    ex_name = menu_screen(stdscr, ex_path)
+def typing_warmup(stdscr, ex_path: str, name: str = None) -> Optional[Stats]:
+    ex_name = name if name else menu_screen(stdscr, ex_path)
     return warmup_screen(stdscr, ex_name, ex_path) if ex_name else None
 
 

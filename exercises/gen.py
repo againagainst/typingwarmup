@@ -1,6 +1,6 @@
 import json
-import click
 from pprint import pprint
+import sys
 
 
 def read_config(filename: str) -> dict:
@@ -29,9 +29,8 @@ def generate_text(
     return newline.join(repeated_lines)[:-1]
 
 
-@click.command()
-@click.option("--config", "filename", default="config.json")
-def main(filename):
+def main():
+    filename = sys.argv[1]
     config = read_config(filename)
     print()
     print(generate_text(**config))

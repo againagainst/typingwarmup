@@ -1,19 +1,21 @@
-import click
 import curses
+import os
+import pathlib
 
 from app import typing_warmup
+import settings
 import text
 
 
-@click.command()
-@click.argument("ex_path", envvar="WARMUP_EX_PATH", type=click.Path())
-def main(ex_path: click.Path):
+def main():
+    current_dir = pathlib.Path(__file__).parent.absolute()
+    ex_path = os.environ.get(settings.env_ex_path, current_dir)
     stats = curses.wrapper(typing_warmup, ex_path)
     if stats:
-        click.echo(text.goodbye.format(error_count=stats.error_count()))
-        click.echo(stats.formatted())
+        print(text.goodbye.format(error_count=stats.error_count()))
+        print(stats.formatted())
     else:
-        click.echo(text.bye)
+        print(text.bye)
 
 
 if __name__ == "__main__":

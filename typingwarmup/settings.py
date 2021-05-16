@@ -4,6 +4,8 @@ meny_up_key = "KEY_UP"
 meny_down_key = "KEY_DOWN"
 meny_enter_key = {"\n", "\x1b"}
 
+env_ex_path = "WARMUP_EX_PATH"
+
 exercise_dir_name = "exercises"
 list_command = {"ls", "list", "-l"}
 

@@ -35,7 +35,7 @@ class UI:
 
     def clear(self) -> None:
         self.stdscr.clear()
-        self.stdscr.refresh()
+        # self.stdscr.refresh()
         self.max_row, self.max_col = self.stdscr.getmaxyx()
 
     def render_line_in_status_bar(self, text: str) -> None:
