@@ -72,11 +72,15 @@ class MenyUI(UI):
         self.render_line_in_status_bar(status)
 
     def up(self):
-        if self.choice > 0:
+        if self.choice <= 0:
+            self.choice = len(self.model) - 1
+        else:
             self.choice -= 1
 
     def down(self):
-        if self.choice < len(self.model) - 1:
+        if self.choice >= len(self.model) - 1:
+            self.choice = 0
+        else:
             self.choice += 1
 
     def ex_name(self) -> str:
