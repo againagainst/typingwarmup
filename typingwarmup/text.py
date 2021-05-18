@@ -1,10 +1,8 @@
 from typing import Optional
 import settings
+from stats import Stats
 
 app_name = "Typing Warmup"
-bye = "Bye!"
-goodbye = "\nGood job! Errors, total: {error_count}\n"
-err_not_found = "The excercise `{0}` is not found"
 expected_key_stat = "With '{0}' key, {1} errors:\n"
 actual_key_stat = "  -> '{0}': {1} times\n"
 
@@ -26,6 +24,15 @@ def status_bar(errors: Optional[int] = None, is_err_state: bool = False):
     elif errors:
         msg += " | {0} errors".format(errors)
     return msg
+
+
+def exit_msg(stats: Optional[Stats]) -> str:
+    if stats:
+        return "Good job! Total errors: {error_count}\n{stats}".format(
+            error_count=stats.error_count(), stats=stats.formatted()
+        )
+    else:
+        return "Bye!"
 
 
 special_keymap = {

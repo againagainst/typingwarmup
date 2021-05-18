@@ -6,5 +6,6 @@
     "python.formatting.blackArgs": ["--target-version", "py38"],
     "python.terminal.activateEnvironment": false,
     "python.analysis.extraPaths": ["typingwarmup"],
+    "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic"
 }

@@ -1,5 +1,7 @@
 import curses
+import math
 from typing import List
+from errors import TerminalSizeException
 
 import text
 import settings
@@ -12,7 +14,6 @@ class UI:
 
     def __init__(self, stdscr):
         self.stdscr = stdscr
-        self.max_row, self.max_col = stdscr.getmaxyx()
 
     def start(self) -> None:
         curses.noecho()
@@ -25,6 +26,7 @@ class UI:
         curses.init_pair(UI.error_color_pair, curses.COLOR_WHITE, curses.COLOR_RED)
 
         self.clear()
+        self.resize()
 
     def stop(self) -> None:
         self.clear()
@@ -35,8 +37,11 @@ class UI:
 
     def clear(self) -> None:
         self.stdscr.clear()
-        # self.stdscr.refresh()
+
+    def resize(self) -> None:
         self.max_row, self.max_col = self.stdscr.getmaxyx()
+        if self.max_row < settings.minimum_rows:
+            raise TerminalSizeException(self.max_row)
 
     def render_line_in_status_bar(self, text: str) -> None:
         self.stdscr.attron(curses.color_pair(UI.status_color_pair))
@@ -53,7 +58,11 @@ class MenyUI(UI):
     def __init__(self, stdscr, exercises: List[str]):
         super().__init__(stdscr)
         self.model = sorted(exercises)
-        self.choice = 0
+        self.cursor = 0
+        self.page = 0
+
+        self.header_padding = 1
+        self.bottom_padding = 2
 
     def start(self) -> None:
         super().start()
@@ -61,41 +70,69 @@ class MenyUI(UI):
 
     def render_model(self) -> None:
         self.clear()
-        for idx, name in enumerate(self.list_of_names()):
-            if idx == self.choice:
-                self.stdscr.attron(curses.color_pair(UI.status_color_pair))
-            self.stdscr.addstr(idx, 0, text.menu_item(idx, name))
-            if idx == self.choice:
-                self.stdscr.attroff(curses.color_pair(UI.status_color_pair))
+        self.resize()
 
-        status = text.status_bar()
+        last_line = self.header_padding
+        for idx, name in enumerate(self.meny_items()):
+            if idx == self.cursor:
+                self.stdscr.attron(curses.color_pair(UI.status_color_pair))
+            item = text.menu_item(self.model_idx(idx), name)
+            self.stdscr.addstr(idx + self.header_padding, 0, item)
+            if idx == self.cursor:
+                self.stdscr.attroff(curses.color_pair(UI.status_color_pair))
+            last_line += 1
+        if self.page != self.pages() - 1:
+            self.stdscr.addstr(last_line, 0, "...")
+
+        status = text.status_bar(errors=self.model_idx(self.cursor))
         self.render_line_in_status_bar(status)
 
-    def up(self):
-        if self.choice <= 0:
-            self.choice = len(self.model) - 1
-        else:
-            self.choice -= 1
+    def up(self, page: bool = False):
+        step = self.page_size() if page else 1
 
-    def down(self):
-        if self.choice >= len(self.model) - 1:
-            self.choice = 0
+        if self.cursor - step < 0:
+            if self.page - 1 < 0:
+                self.page = self.pages() - 1
+            else:
+                self.page -= 1
+            self.cursor = self.meny_length() - 1
         else:
-            self.choice += 1
+            self.cursor -= step
+
+    def down(self, page: bool = False):
+        step = self.page_size() if page else 1
+
+        if self.cursor + step >= self.meny_length():
+            if self.page + 1 >= self.pages():
+                self.page = 0
+            else:
+                self.page += 1
+            self.cursor = 0
+        else:
+            self.cursor += 1
 
     def ex_name(self) -> str:
-        return self.model[self.model_idx(page=0, page_idx=self.choice)]
+        return self.model[self.model_idx(page_idx=self.cursor)]
 
-    def list_of_names(self, page: int = 0) -> List[str]:
-        start = page * self.page_size()
+    def meny_items(self) -> List[str]:
+        start = self.page * self.page_size()
         end = start + self.page_size()
         return self.model[start:end]
 
-    def model_idx(self, page: int, page_idx: int) -> int:
-        return page * self.page_size() + page_idx
+    def meny_length(self) -> int:
+        return len(self.meny_items())
+
+    def model_idx(self, page_idx: int) -> int:
+        return self.page * self.page_size() + page_idx
 
     def page_size(self) -> int:
-        return min(settings.menu_page_limit, self.max_row)
+        """
+        All available rows - header_padding, bottom_padding, and status bar.
+        """
+        return self.max_row - self.header_padding - self.bottom_padding - 1
+
+    def pages(self) -> int:
+        return math.ceil(len(self.model) / self.page_size())
 
 
 class WarmupUI(UI):
@@ -112,6 +149,7 @@ class WarmupUI(UI):
             return
 
         self.clear()
+        self.resize()
 
         for (row, line) in enumerate(self.model.text.split("\n")):
             for (col, char) in enumerate(line):

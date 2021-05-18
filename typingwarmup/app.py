@@ -1,5 +1,6 @@
 import os
-from typing import Optional
+from typing import List, Optional
+from errors import InvalidExcercisesDir
 
 import text
 import settings
@@ -20,6 +21,16 @@ def escape_key(key: str) -> str:
     return text.special_keymap.get(key, text.unknown_symbol)
 
 
+def read_exerccises(ex_path: str) -> List[str]:
+    try:
+        exercises = os.listdir(os.path.join(ex_path, settings.exercise_dir_name))
+        exercises.remove("gen.py")
+        exercises.remove("config.json")
+        return exercises
+    except OSError:
+        raise InvalidExcercisesDir(ex_path)
+
+
 def typing_warmup(stdscr, ex_path: str, name: str = None) -> Optional[Stats]:
     ex_name = name if name else menu_screen(stdscr, ex_path)
     return warmup_screen(stdscr, ex_name, ex_path) if ex_name else None
@@ -27,11 +38,8 @@ def typing_warmup(stdscr, ex_path: str, name: str = None) -> Optional[Stats]:
 
 def menu_screen(stdscr, ex_path: str) -> Optional[str]:
     input_char = ""
-    exercises = os.listdir(os.path.join(ex_path, settings.exercise_dir_name))
-    exercises.remove("gen.py")
-    exercises.remove("config.json")
 
-    ui = MenyUI(stdscr, exercises)
+    ui = MenyUI(stdscr, read_exerccises(ex_path))
     ui.start()
 
     while True:
@@ -45,6 +53,10 @@ def menu_screen(stdscr, ex_path: str) -> Optional[str]:
             ui.up()
         elif input_char == settings.meny_down_key:
             ui.down()
+        elif input_char == settings.meny_page_up_key:
+            ui.up(page=True)
+        elif input_char == settings.meny_page_down_key:
+            ui.down(page=True)
         else:
             pass
 
