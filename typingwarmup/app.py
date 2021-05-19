@@ -1,45 +1,41 @@
 import os
+import argparse
+from pathlib import Path
 from typing import List, Optional
-from errors import InvalidExcercisesDir
 
 import text
 import settings
+from errors import InvalidExcercisesDir
 from model import Model
 from ui import WarmupUI, MenyUI
 from stats import Stats
 
 
-def is_input_corect(model: Model, input_char: str) -> bool:
-    if model.is_end_of_line():
-        return input_char in text.end_of_line_symbols
-    return model.current_char_is(input_char)
-
-
-def escape_key(key: str) -> str:
-    if len(key) == 1:
-        return key
-    return text.special_keymap.get(key, text.unknown_symbol)
-
-
-def read_exerccises(ex_path: str) -> List[str]:
-    try:
-        exercises = os.listdir(os.path.join(ex_path, settings.exercise_dir_name))
-        exercises.remove("gen.py")
-        exercises.remove("config.json")
-        return exercises
-    except OSError:
-        raise InvalidExcercisesDir(ex_path)
-
-
-def typing_warmup(stdscr, ex_path: str, name: str = None) -> Optional[Stats]:
-    ex_name = name if name else menu_screen(stdscr, ex_path)
+def typing_warmup(stdscr) -> Optional[Stats]:
+    current_dir = Path(__file__).parent.absolute()
+    ex_path = Path(os.environ.get(settings.env_ex_path, current_dir))
+    ex_name = ex_name_from_args() or ex_name_from_menu(stdscr, ex_path)
     return warmup_screen(stdscr, ex_name, ex_path) if ex_name else None
 
 
-def menu_screen(stdscr, ex_path: str) -> Optional[str]:
+def ex_name_from_args() -> Optional[str]:
+    parser = argparse.ArgumentParser(description=text.app_name)
+    parser.add_argument(
+        "exercise",
+        nargs="?",
+        type=str,
+        default=None,
+        help=text.arg_description,
+    )
+
+    args = parser.parse_args()
+    return args.exercise
+
+
+def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
     input_char = ""
 
-    ui = MenyUI(stdscr, read_exerccises(ex_path))
+    ui = MenyUI(stdscr, read_exercises(ex_path))
     ui.start()
 
     while True:
@@ -61,7 +57,17 @@ def menu_screen(stdscr, ex_path: str) -> Optional[str]:
             pass
 
 
-def warmup_screen(stdscr, name: str, ex_path: str) -> Stats:
+def read_exercises(ex_path: Path) -> List[str]:
+    try:
+        exercises = os.listdir(os.path.join(ex_path, settings.exercise_dir_name))
+        exercises.remove("gen.py")
+        exercises.remove("config.json")
+        return exercises
+    except OSError:
+        raise InvalidExcercisesDir(ex_path)
+
+
+def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
     input_char = ""
 
     model = Model(ex_path, name)
@@ -89,7 +95,13 @@ def warmup_screen(stdscr, name: str, ex_path: str) -> Stats:
         elif input_char == settings.exit_key:
             pass
         else:
-            model.add_error(escape_key(input_char))
+            model.add_error(text.escape_key(input_char))
 
     ui.stop()
     return model.stats
+
+
+def is_input_corect(model: Model, input_char: str) -> bool:
+    if model.is_end_of_line():
+        return input_char in text.end_of_line_symbols
+    return model.current_char_is(input_char)

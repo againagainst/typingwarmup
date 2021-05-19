@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import settings
 
 
@@ -17,7 +19,7 @@ class TerminalSizeException(ApplicationException):
 
 
 class InvalidExcercisesDir(ApplicationException):
-    def __init__(self, path: str, *args: object) -> None:
+    def __init__(self, path: Path, *args: object) -> None:
         super().__init__(*args)
         self.path = path
 

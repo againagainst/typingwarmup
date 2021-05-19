@@ -10,6 +10,10 @@ unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
 
+arg_description = (
+    "Optional. Name of the exercise; if not provided shows a meny to select."
+)
+
 
 def menu_item(idx: int, name: str) -> str:
     return "{0:>2}. {1}".format(idx + 1, name)
@@ -33,6 +37,12 @@ def exit_msg(stats: Optional[Stats]) -> str:
         )
     else:
         return "Bye!"
+
+
+def escape_key(key: str) -> str:
+    if len(key) == 1:
+        return key
+    return special_keymap.get(key, unknown_symbol)
 
 
 special_keymap = {

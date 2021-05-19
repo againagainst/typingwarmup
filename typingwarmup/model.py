@@ -1,7 +1,9 @@
 import random
 import os
 from functools import wraps
+from pathlib import Path
 
+import settings
 from stats import Stats
 
 
@@ -15,7 +17,7 @@ def render(method):
 
 
 class Model:
-    def __init__(self, ex_path: str, name: str, shuffle=False):
+    def __init__(self, ex_path: Path, name: str, shuffle=False):
         self.text = read_exercise(ex_path, name)
         # TODO: Temp hack replace with proper modeling
         self.text = self.text.replace("\n", "\t\n").replace("\t\n\t\n", "\t\n\n")
@@ -72,8 +74,8 @@ class Model:
         )
 
 
-def read_exercise(ex_path: str, name: str) -> str:
-    filename = os.path.join(ex_path, "exercises", name)
+def read_exercise(ex_path: Path, name: str) -> str:
+    filename = os.path.join(ex_path, settings.exercise_dir_name, name)
     with open(filename, "r") as fp:
         return fp.read()
 
