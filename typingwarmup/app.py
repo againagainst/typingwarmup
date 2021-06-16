@@ -58,11 +58,21 @@ def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
 
 
 def read_exercises(ex_path: Path) -> List[str]:
+    def is_excercise(f: os.DirEntry) -> bool:
+        return f.name not in {"gen.py", "config.json"}
+
+    def create_time(f: os.DirEntry) -> float:
+        return f.stat().st_ctime
+
+    def file_name(f: os.DirEntry) -> str:
+        return f.name
+
     try:
-        exercises = os.listdir(os.path.join(ex_path, settings.exercise_dir_name))
-        exercises.remove("gen.py")
-        exercises.remove("config.json")
-        return exercises
+        full_path = os.path.join(ex_path, settings.exercise_dir_name)
+        exercises = filter(is_excercise, os.scandir(full_path))
+        exercises = sorted(exercises, key=create_time, reverse=True)
+        exercises = map(file_name, exercises)
+        return list(exercises)
     except OSError:
         raise InvalidExcercisesDir(ex_path)
 

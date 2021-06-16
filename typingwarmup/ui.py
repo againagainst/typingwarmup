@@ -57,7 +57,7 @@ class UI:
 class MenyUI(UI):
     def __init__(self, stdscr, exercises: List[str]):
         super().__init__(stdscr)
-        self.model = sorted(exercises)
+        self.model = exercises
         self.cursor = 0
         self.page = 0
 
