@@ -9,7 +9,9 @@ class Stats:
         self.data = defaultdict(lambda: defaultdict(int))
 
     def add_error(self, expected: str, actual: str) -> None:
-        self.data[expected][actual] += 1
+        esc_expected = text.escape_key(expected)
+        esc_actual = text.escape_key(actual)
+        self.data[esc_expected][esc_actual] += 1
 
     def error_count(self) -> int:
         return sum(map(lambda d: sum(d.values()), self.data.values()))

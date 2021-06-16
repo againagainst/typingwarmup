@@ -40,7 +40,7 @@ def exit_msg(stats: Optional[Stats]) -> str:
 
 
 def escape_key(key: str) -> str:
-    if len(key) == 1:
+    if len(key) == 1 and key != "\n":
         return key
     return special_keymap.get(key, unknown_symbol)
 
@@ -58,5 +58,6 @@ special_keymap = {
     "KEY_PPAGE": "⤒",
     "KEY_NPAGE": "⤓",
     "KEY_BREAK": "⎊",
-    "\x1b": "⎋",
+    "\x1b": "⏎",
+    "\n": "⏎",
 }
