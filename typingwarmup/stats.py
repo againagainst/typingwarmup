@@ -1,7 +1,11 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from typing import List, Tuple
 
 import text
+from layout import Finger, ISO as LayoutISO
+
+
+TypingError = namedtuple("TypingError", ["expected", "actual"])
 
 
 class Stats:
@@ -9,23 +13,26 @@ class Stats:
         self.data = defaultdict(lambda: defaultdict(int))
 
     def add_error(self, expected: str, actual: str) -> None:
-        esc_expected = text.escape_key(expected)
-        esc_actual = text.escape_key(actual)
-        self.data[esc_expected][esc_actual] += 1
+        key_expected = text.escape_key(expected)
+        key_actual = text.escape_key(actual)
+        finger = LayoutISO.get(key_expected, Finger.other)
+        self.data[finger][TypingError(key_expected, key_actual)] += 1
 
     def error_count(self) -> int:
         return sum(map(lambda d: sum(d.values()), self.data.values()))
 
     def formatted(self) -> str:
         result = ""
-        for exp, errors_on_key, act_dict in self.sorted():
-            result += text.expected_key_stat.format(exp, errors_on_key)
-            for act, count in act_dict:
-                result += text.actual_key_stat.format(act, count)
+        for finger, errors_on_key, exp_act_dict in self.sorted():
+            result += text.finger_key_stat.format(finger, errors_on_key)
+            for keys, count in exp_act_dict:
+                result += text.actual_expected_stat.format(
+                    keys.actual, keys.expected, count
+                )
             result += "\n"
         return result
 
-    def sorted(self) -> List[Tuple[str, int, List[Tuple[str, int]]]]:
+    def sorted(self) -> List[Tuple[str, int, List[Tuple[TypingError, int]]]]:
         """
         {
             a: {b: 1, c: 2},
@@ -36,9 +43,11 @@ class Stats:
         ]
         """
         result = []
-        for exp, act_dict in self.data.items():
-            act_list = sorted(act_dict.items(), key=lambda k: k[1], reverse=True)
-            errors_on_key = sum(map(lambda k: k[1], act_list))
-            result.append((exp, errors_on_key, act_list))
+        for finger, exp_act_dict in self.data.items():
+            exp_act_list = sorted(
+                exp_act_dict.items(), key=lambda k: k[1], reverse=True
+            )
+            errors_on_key = sum(map(lambda k: k[1], exp_act_list))
+            result.append((finger.value, errors_on_key, exp_act_list))
         result.sort(key=lambda k: k[1], reverse=True)
         return result

@@ -3,8 +3,8 @@ import settings
 from stats import Stats
 
 app_name = "Typing Warmup"
-expected_key_stat = "With '{0}' key, {1} errors:\n"
-actual_key_stat = "  -> '{0}': {1} times\n"
+finger_key_stat = "With {0}, {1} errors:\n"
+actual_expected_stat = " '{0}' instead of '{1}': {2} times\n"
 
 unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
@@ -60,4 +60,5 @@ special_keymap = {
     "KEY_BREAK": "⎊",
     "\x1b": "⏎",
     "\n": "⏎",
+    "\t": "↹",
 }
