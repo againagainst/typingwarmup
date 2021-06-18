@@ -4,7 +4,7 @@ from stats import Stats
 
 app_name = "Typing Warmup"
 finger_key_stat = "With {0}, {1} errors:\n"
-actual_expected_stat = " '{0}' instead of '{1}': {2} times\n"
+actual_expected_stat = "  '{0}' instead of '{1}', {2} times\n"
 
 unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
