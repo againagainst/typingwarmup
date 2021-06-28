@@ -1,6 +1,7 @@
 import random
 import os
 from pathlib import Path
+from typing import List
 
 
 class Model:
@@ -12,6 +13,9 @@ class Model:
 
         self.cursor_row = 0
         self.cursor_col = 0
+
+    def page(self, from_row: int, to_row: int) -> List[str]:
+        return self.rows[from_row:to_row]
 
     def next(self) -> None:
         if self.is_cursor_at_last_col():

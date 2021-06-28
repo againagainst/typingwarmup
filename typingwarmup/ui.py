@@ -63,9 +63,6 @@ class MenyUI(UI):
         self.cursor = 0
         self.page = 0
 
-        self.header_padding = 1
-        self.bottom_padding = 2
-
     def start(self) -> None:
         super().start()
         curses.curs_set(0)
@@ -74,12 +71,12 @@ class MenyUI(UI):
         self.clear()
         self.resize()
 
-        last_line = self.header_padding
+        last_line = settings.meny_header_padding
         for idx, name in enumerate(self.meny_items()):
             if idx == self.cursor:
                 self.stdscr.attron(curses.color_pair(UI.status_color_pair))
             item = text.menu_item(self.model_idx(idx), name)
-            self.stdscr.addstr(idx + self.header_padding, 0, item)
+            self.stdscr.addstr(idx + settings.meny_header_padding, 0, item)
             if idx == self.cursor:
                 self.stdscr.attroff(curses.color_pair(UI.status_color_pair))
             last_line += 1
@@ -131,7 +128,12 @@ class MenyUI(UI):
         """
         All available rows - header_padding, bottom_padding, and status bar.
         """
-        return self.max_row - self.header_padding - self.bottom_padding - 1
+        return (
+            self.max_row
+            - settings.meny_header_padding
+            - settings.meny_bottom_padding
+            - settings.status_bar_rows
+        )
 
     def pages(self) -> int:
         return math.ceil(len(self.model) / self.page_size())
@@ -143,6 +145,7 @@ class WarmupUI(UI):
         self.model = model
         self.state = state
         self.stats = stats
+        self.page = 0
 
     def start(self) -> None:
         super().start()
@@ -152,9 +155,13 @@ class WarmupUI(UI):
         self.clear()
         self.resize()
 
-        for (row, line) in enumerate(self.model.rows):
+        start = self.page * self.page_size()
+        end = start + self.page_size()
+        rows = enumerate(self.model.page(start, end), settings.header_padding)
+
+        for (row, line) in rows:
             for (col, char) in enumerate(line):
-                if self.model.is_before_cursor(row, col):
+                if self.model.is_before_cursor(row - settings.header_padding, col):
                     self.render_bright(row, col, char)
                 else:
                     self.render_dimmed(row, col, char)
@@ -177,15 +184,32 @@ class WarmupUI(UI):
 
     def render_cursor(self) -> None:
         self.stdscr.addch(
-            self.model.cursor_row,
-            self.model.cursor_col,
+            self.ui_row(),
+            self.ui_col(),
             self.model.cursor_char(),
             curses.A_DIM,
         )
-        self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
+        self.stdscr.move(self.ui_row(), self.model.cursor_col)
 
     def render_wrong_input(self, wrong_input: str) -> None:
         self.stdscr.attron(curses.color_pair(UI.error_color_pair))
-        self.stdscr.addch(self.model.cursor_row, self.model.cursor_col, wrong_input)
-        self.stdscr.move(self.model.cursor_row, self.model.cursor_col)
+        self.stdscr.addch(self.ui_row(), self.ui_col(), wrong_input)
+        self.stdscr.move(self.ui_row(), self.ui_col())
         self.stdscr.attroff(curses.color_pair(UI.error_color_pair))
+
+    def ui_row(self) -> int:
+        return self.model.cursor_row + settings.header_padding
+
+    def ui_col(self) -> int:
+        return self.model.cursor_col
+
+    def page_size(self) -> int:
+        return (
+            self.max_row
+            - settings.header_padding
+            - settings.bottom_padding
+            - settings.status_bar_rows
+        )
+
+    def pages(self) -> int:
+        return math.ceil(len(self.model.rows) / self.page_size())
