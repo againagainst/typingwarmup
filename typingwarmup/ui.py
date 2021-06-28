@@ -1,12 +1,13 @@
 import curses
 import math
 from typing import List
-from errors import TerminalSizeException
-from state import State
 
 import text
 import settings
+from errors import TerminalSizeException
 from model import Model
+from state import State
+from stats import Stats
 
 
 class UI:
@@ -137,19 +138,17 @@ class MenyUI(UI):
 
 
 class WarmupUI(UI):
-    def __init__(self, stdscr, model: Model, state: State):
+    def __init__(self, stdscr, model: Model, state: State, stats: Stats):
         super().__init__(stdscr)
         self.model = model
         self.state = state
+        self.stats = stats
 
     def start(self) -> None:
         super().start()
         curses.curs_set(1)
 
     def render_model(self) -> None:
-        if not self.state.repaint:
-            return
-
         self.clear()
         self.resize()
 
@@ -161,15 +160,14 @@ class WarmupUI(UI):
                     self.render_dimmed(row, col, char)
 
         status = text.status_bar(
-            errors=self.model.stats.error_count(),
-            is_err_state=bool(self.model.wrong_input),
+            errors=self.stats.error_count(),
+            is_err_state=bool(self.state.wrong_input),
         )
         self.render_line_in_status_bar(status)
-        if self.model.wrong_input:
-            self.render_wrong_input(self.model.wrong_input)
+        if self.state.wrong_input:
+            self.render_wrong_input(self.state.wrong_input)
         else:
             self.render_cursor()
-        self.state.repaint = False
 
     def render_dimmed(self, row: int, col: int, char: str) -> None:
         self.stdscr.addch(row, col, char, curses.A_DIM)

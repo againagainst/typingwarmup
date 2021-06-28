@@ -82,35 +82,44 @@ def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
     input_char = ""
 
     state = State()
+    stats = Stats()
     model = Model(ex_path, name)
-    ui = WarmupUI(stdscr, model, state)
+    ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
     while True:
-        while settings.skip_empty_rows and model.is_cursor_row_empty():
-            model.next_row()
+        if settings.skip_empty_rows:
+            model.skip_empty_rows()
 
         ui.render_model()
         input_char = ui.input()
 
-        if model.wrong_input:
+        if state.wrong_input:
             if input_char == settings.clear_key:
-                model.clear_wrong_input()
-                state.repaint = True
+                state.wrong_input = None
             else:
                 continue
-        elif model.cursor_char_equals(input_char):
-            if model.is_cursor_at_last_row() and model.is_cursor_at_last_col():
+        elif is_input_correct(input_char, model):
+            if model.is_cursor_at_the_end():
                 break
             model.next()
-            state.repaint = True
         elif input_char == text.resize_event:
-            state.repaint = True
+            pass
         elif input_char == settings.exit_key:
             break
         else:
-            model.add_error(input_char)
-            state.repaint = True
+            stats.add_error(
+                actual=input_char,
+                expected=model.cursor_char(),
+                is_eol=model.is_cursor_at_last_col(),
+            )
+            state.wrong_input = input_char
 
     ui.stop()
-    return model.stats
+    return stats
+
+
+def is_input_correct(input_char: str, model: Model) -> bool:
+    if model.is_cursor_at_last_col():
+        return input_char in text.end_of_line_symbols
+    return model.cursor_char_equals(input_char)

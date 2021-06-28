@@ -12,9 +12,9 @@ class Stats:
     def __init__(self):
         self.data = defaultdict(lambda: defaultdict(int))
 
-    def add_error(self, expected: str, actual: str) -> None:
-        key_expected = text.escape_key(expected)
+    def add_error(self, actual: str, expected: str, is_eol: bool) -> None:
         key_actual = text.escape_key(actual)
+        key_expected = text.EOL if is_eol else text.escape_key(expected)
         finger = LayoutISO.get(key_expected, Finger.other)
         self.data[finger][TypingError(key_expected, key_actual)] += 1
 

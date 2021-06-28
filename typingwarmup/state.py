@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
 class State:
-    repaint: bool = True
-    typing_error: bool = False
+    wrong_input: Optional[str] = None
