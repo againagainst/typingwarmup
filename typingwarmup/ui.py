@@ -151,9 +151,9 @@ class WarmupUI(UI):
         self.clear()
         self.resize()
 
-        for (row, line) in enumerate(self.model.text.split("\n")):
+        for (row, line) in enumerate(self.model.rows):
             for (col, char) in enumerate(line):
-                if self.model.is_before_curent(row, col):
+                if self.model.is_before_cursor(row, col):
                     self.render_bright(row, col, char)
                 else:
                     self.render_dimmed(row, col, char)
@@ -179,7 +179,7 @@ class WarmupUI(UI):
         self.stdscr.addch(
             self.model.cursor_row,
             self.model.cursor_col,
-            self.model.current_char(),
+            self.model.cursor_char(),
             curses.A_DIM,
         )
         self.stdscr.move(self.model.cursor_row, self.model.cursor_col)

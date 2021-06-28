@@ -14,6 +14,7 @@ from stats import Stats
 def typing_warmup(stdscr) -> Optional[Stats]:
     current_dir = Path(__file__).parent.absolute()
     ex_path = Path(os.environ.get(settings.env_ex_path, current_dir))
+    ex_path = ex_path.joinpath(settings.exercise_dir_name)
     ex_name = ex_name_from_args() or ex_name_from_menu(stdscr, ex_path)
     return warmup_screen(stdscr, ex_name, ex_path) if ex_name else None
 
@@ -68,8 +69,7 @@ def read_exercises(ex_path: Path) -> List[str]:
         return f.name
 
     try:
-        full_path = os.path.join(ex_path, settings.exercise_dir_name)
-        exercises = filter(is_excercise, os.scandir(full_path))
+        exercises = filter(is_excercise, os.scandir(ex_path))
         exercises = sorted(exercises, key=create_time, reverse=True)
         exercises = map(file_name, exercises)
         return list(exercises)
@@ -84,34 +84,28 @@ def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
     ui = WarmupUI(stdscr, model)
     ui.start()
 
-    while not model.done() and input_char != settings.exit_key:
-        ui.render_model()
-
-        if model.current_char_is_new_line():
+    while True:
+        while settings.skip_empty_rows and model.is_cursor_row_empty():
             model.next_row()
-            continue
 
+        ui.render_model()
         input_char = ui.input()
+
         if model.wrong_input:
             if input_char == settings.clear_key:
                 model.clear_wrong_input()
             else:
                 continue
-
-        elif is_input_corect(model, input_char):
-            model.next_col()
+        elif model.cursor_char_equals(input_char):
+            if model.is_cursor_at_last_row() and model.is_cursor_at_last_col():
+                break
+            model.next()
         elif input_char == text.resize_event:
             model.is_to_render = True
         elif input_char == settings.exit_key:
-            pass
+            break
         else:
-            model.add_error(text.escape_key(input_char))
+            model.add_error(input_char)
 
     ui.stop()
     return model.stats
-
-
-def is_input_corect(model: Model, input_char: str) -> bool:
-    if model.is_end_of_line():
-        return input_char in text.end_of_line_symbols
-    return model.current_char_is(input_char)

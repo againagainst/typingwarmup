@@ -45,6 +45,7 @@ def escape_key(key: str) -> str:
     return special_keymap.get(key, unknown_symbol)
 
 
+EOL = "⏎"
 special_keymap = {
     "KEY_UP": "⇧",
     "KEY_DOWN": "⇩",
@@ -58,7 +59,7 @@ special_keymap = {
     "KEY_PPAGE": "⤒",
     "KEY_NPAGE": "⤓",
     "KEY_BREAK": "⎊",
-    "\x1b": "⏎",
-    "\n": "⏎",
+    "\x1b": EOL,
+    "\n": EOL,
     "\t": "↹",
 }
