@@ -2,6 +2,7 @@ import os
 import argparse
 from pathlib import Path
 from typing import List, Optional
+from state import State
 
 import text
 import settings
@@ -80,8 +81,9 @@ def read_exercises(ex_path: Path) -> List[str]:
 def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
     input_char = ""
 
+    state = State()
     model = Model(ex_path, name)
-    ui = WarmupUI(stdscr, model)
+    ui = WarmupUI(stdscr, model, state)
     ui.start()
 
     while True:
@@ -94,18 +96,21 @@ def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
         if model.wrong_input:
             if input_char == settings.clear_key:
                 model.clear_wrong_input()
+                state.repaint = True
             else:
                 continue
         elif model.cursor_char_equals(input_char):
             if model.is_cursor_at_last_row() and model.is_cursor_at_last_col():
                 break
             model.next()
+            state.repaint = True
         elif input_char == text.resize_event:
-            model.is_to_render = True
+            state.repaint = True
         elif input_char == settings.exit_key:
             break
         else:
             model.add_error(input_char)
+            state.repaint = True
 
     ui.stop()
     return model.stats
