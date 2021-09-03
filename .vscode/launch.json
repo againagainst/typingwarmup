@@ -12,7 +12,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "TypingWarmup: Main",
+            "name": "warmup",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
@@ -20,6 +20,28 @@
             "env": {
                 "WARMUP_EX_PATH": "${workspaceFolder}"
             }
+        },
+        {
+            "name": "warmup test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/typingwarmup/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "WARMUP_EX_PATH": "${workspaceFolder}"
+            },
+            "args": ["test"]
+        },
+        {
+            "name": "warmup --help",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/typingwarmup/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "WARMUP_EX_PATH": "${workspaceFolder}"
+            },
+            "args": ["--help"]
         }
     ]
 }
