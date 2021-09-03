@@ -60,8 +60,6 @@ def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
 
 
 def read_exercises(ex_path: Path) -> List[str]:
-    def is_excercise(f: os.DirEntry) -> bool:
-        return f.name not in {"gen.py", "config.json"}
 
     def create_time(f: os.DirEntry) -> float:
         return f.stat().st_ctime
@@ -70,7 +68,7 @@ def read_exercises(ex_path: Path) -> List[str]:
         return f.name
 
     try:
-        exercises = filter(is_excercise, os.scandir(ex_path))
+        exercises = os.scandir(ex_path)
         exercises = sorted(exercises, key=create_time, reverse=True)
         exercises = map(file_name, exercises)
         return list(exercises)
