@@ -1,7 +1,7 @@
 import os
 import argparse
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from state import State
 
 import text
@@ -17,7 +17,11 @@ def typing_warmup(stdscr) -> Optional[Stats]:
     ex_path = Path(os.environ.get(settings.env_ex_path, current_dir))
     ex_path = ex_path.joinpath(settings.exercise_dir_name)
     ex_name = ex_name_from_args() or ex_name_from_menu(stdscr, ex_path)
-    return warmup_screen(stdscr, ex_name, ex_path) if ex_name else None
+    if ex_name:
+        ex_full_path = ex_path.joinpath(ex_name)
+        return warmup_screen(stdscr, ex_full_path)
+    else:
+        return None
 
 
 def ex_name_from_args() -> Optional[str]:
@@ -60,7 +64,6 @@ def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
 
 
 def read_exercises(ex_path: Path) -> List[str]:
-
     def create_time(f: os.DirEntry) -> float:
         return f.stat().st_ctime
 
@@ -76,19 +79,16 @@ def read_exercises(ex_path: Path) -> List[str]:
         raise InvalidExcercisesDir(ex_path)
 
 
-def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
+def warmup_screen(stdscr, excercise: Path) -> Stats:
     input_char = ""
 
     state = State()
     stats = Stats()
-    model = Model(ex_path, name)
+    model = Model(excercise)
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
     while True:
-        if settings.skip_empty_rows:
-            model.skip_empty_rows()
-
         ui.render_model()
         input_char = ui.input()
 
@@ -109,7 +109,7 @@ def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
             stats.add_error(
                 actual=input_char,
                 expected=model.cursor_char(),
-                is_eol=model.is_cursor_at_last_col(),
+                is_eol=model.is_cursor_at_eol(),
             )
             state.wrong_input = input_char
 
@@ -118,6 +118,11 @@ def warmup_screen(stdscr, name: str, ex_path: Path) -> Stats:
 
 
 def is_input_correct(input_char: str, model: Model) -> bool:
-    if model.is_cursor_at_last_col():
+    if model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)
+
+
+def page_size(stdscr) -> Tuple[int, int]:
+    max_row, max_col = stdscr.getmaxyx()
+    return (max_row - settings.interface_rows, max_col)

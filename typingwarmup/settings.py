@@ -12,11 +12,12 @@ meny_bottom_padding = 2
 env_ex_path = "WARMUP_EX_PATH"
 exercise_dir_name = "exercises"
 
-skip_empty_rows = True
+# skip_empty_rows = True # do we want this?
 
 header_padding = 2
-minimum_text_rows = 2
 bottom_padding = 1
 status_bar_rows = 1
+interface_rows = header_padding + bottom_padding + status_bar_rows
+minimum_text_rows = 2
 # App won't start if r,c = stdscr.getmaxyx(); r < minimum_rows
-minimum_rows = header_padding + minimum_text_rows + bottom_padding + status_bar_rows
+minimum_rows = interface_rows + minimum_text_rows
