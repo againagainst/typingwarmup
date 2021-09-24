@@ -1,5 +1,8 @@
 import random
 from pathlib import Path
+from typing import List
+
+import settings
 
 
 class Model:
@@ -7,17 +10,20 @@ class Model:
         exercise_text = read_exercise(excercise)
         if shuffle:
             exercise_text = shuffle_exercise(exercise_text)
-        self.exercise = exercise_text
+        header = "\n" * settings.header_padding
+        self.exercise = header + exercise_text
+        self.position = settings.header_padding
 
-        self.row_limit = 0
-        self.col_limit = 0
-        self.position = 0
+        self.offset = 0
+        self.offset_queue = Model.init_offset_queue()
 
     def next(self) -> None:
         self.position += 1
+        if self.exercise[self.position - 1] == "\n":
+            self.offset = self.enqueue_offset(self.position)
 
     def page_before_cursor(self) -> str:
-        return self.exercise[: self.position]
+        return self.exercise[self.offset : self.position]
 
     def cursor_char(self) -> str:
         return self.exercise[self.position]
@@ -33,6 +39,15 @@ class Model:
 
     def is_cursor_at_eol(self) -> bool:
         return self.cursor_char_equals("\n")
+
+    def enqueue_offset(self, new_offset: int) -> int:
+        self.offset_queue.append(new_offset)
+        return self.offset_queue.pop(0)
+
+    @staticmethod
+    def init_offset_queue() -> List[int]:
+        start = 1
+        return list(range(start, settings.header_padding + start))
 
 
 def read_exercise(excercise: Path) -> str:

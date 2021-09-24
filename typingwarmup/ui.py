@@ -1,6 +1,6 @@
 import curses
 import math
-from typing import List
+from typing import List, Tuple
 
 import text
 import settings
@@ -163,6 +163,8 @@ class WarmupUI(UI):
         for char in self.model.page_after_cursor():
             self.render_dimmed(row, col, char)
             row, col = self.move_render_cursor(row, col, char)
+            if row > self.rows_awailable():
+                break
 
         status = text.status_bar(
             errors=self.stats.error_count(),
@@ -191,8 +193,14 @@ class WarmupUI(UI):
         self.stdscr.move(row, col)
         self.stdscr.attroff(curses.color_pair(UI.error_color_pair))
 
+    def rows_awailable(self) -> int:
+        return self.max_row - settings.interface_rows
+
+    def cols_awailable(self) -> int:
+        return self.max_col
+
     @staticmethod
-    def move_render_cursor(row, col, char):
+    def move_render_cursor(row: int, col: int, char: str) -> Tuple[int, int]:
         if char == "\n":
             return (row + 1, 0)
         else:
