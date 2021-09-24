@@ -17,9 +17,6 @@
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
-            "env": {
-                "WARMUP_EX_PATH": "${workspaceFolder}"
-            }
         },
         {
             "name": "warmup test",
@@ -27,9 +24,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
-            "env": {
-                "WARMUP_EX_PATH": "${workspaceFolder}"
-            },
+            "cwd": "${workspaceFolder}/exercises",
             "args": ["test"]
         },
         {
@@ -38,9 +33,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
-            "env": {
-                "WARMUP_EX_PATH": "${workspaceFolder}"
-            },
+            "cwd": "${workspaceFolder}/exercises",
             "args": ["--help"]
         }
     ]

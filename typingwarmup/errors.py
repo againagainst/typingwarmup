@@ -24,7 +24,4 @@ class InvalidExcercisesDir(ApplicationException):
         self.path = path
 
     def __str__(self) -> str:
-        return (
-            "Invalid path to the excercises directory: {0}\n"
-            + "Check {1} env variable."
-        ).format(self.path, settings.env_ex_path)
+        return ("Invalid path to the excercises directory: {0}\n").format(self.path)
