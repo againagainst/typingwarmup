@@ -5,7 +5,7 @@ from typing import List
 import settings
 
 
-class Model:
+class WarmupModel:
     def __init__(self, excercise: Path, shuffle=False):
         exercise_text = read_exercise(excercise)
         if shuffle:
@@ -15,7 +15,7 @@ class Model:
         self.position = settings.header_padding
 
         self.offset = 0
-        self.offset_queue = Model.init_offset_queue()
+        self.offset_queue = self.init_offset_queue()
 
     def next(self) -> None:
         self.position += 1

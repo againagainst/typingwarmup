@@ -1,15 +1,14 @@
 import os
-import argparse
 from pathlib import Path
-from typing import List, Optional, Tuple
-from state import State
+from typing import Optional
 
-import text
 import settings
-from errors import InvalidExcercisesDir
-from model import Model
-from ui import WarmupUI, MenyUI
+import text
+from args import ex_name_from_args
+from model import MenuModel, WarmupModel
+from state import State
 from stats import Stats
+from ui import MenyUI, WarmupUI
 
 
 def typing_warmup(stdscr) -> Optional[Stats]:
@@ -24,24 +23,10 @@ def typing_warmup(stdscr) -> Optional[Stats]:
         return None
 
 
-def ex_name_from_args() -> Optional[str]:
-    parser = argparse.ArgumentParser(description=text.app_name)
-    parser.add_argument(
-        "exercise",
-        nargs="?",
-        type=str,
-        default=None,
-        help=text.arg_description,
-    )
-
-    args = parser.parse_args()
-    return args.exercise
-
-
 def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
     input_char = ""
 
-    ui = MenyUI(stdscr, read_exercises(ex_path))
+    ui = MenyUI(stdscr, MenuModel.read_exercises(ex_path))
     ui.start()
 
     while True:
@@ -63,28 +48,12 @@ def ex_name_from_menu(stdscr, ex_path: Path) -> Optional[str]:
             pass
 
 
-def read_exercises(ex_path: Path) -> List[str]:
-    def create_time(f: os.DirEntry) -> float:
-        return f.stat().st_ctime
-
-    def file_name(f: os.DirEntry) -> str:
-        return f.name
-
-    try:
-        exercises = os.scandir(ex_path)
-        exercises = sorted(exercises, key=create_time, reverse=True)
-        exercises = map(file_name, exercises)
-        return list(exercises)
-    except OSError:
-        raise InvalidExcercisesDir(ex_path)
-
-
 def warmup_screen(stdscr, excercise: Path) -> Stats:
     input_char = ""
 
     state = State()
     stats = Stats()
-    model = Model(excercise)
+    model = WarmupModel(excercise)
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
@@ -117,12 +86,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
     return stats
 
 
-def is_input_correct(input_char: str, model: Model) -> bool:
+def is_input_correct(input_char: str, model: WarmupModel) -> bool:
     if model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)
-
-
-def page_size(stdscr) -> Tuple[int, int]:
-    max_row, max_col = stdscr.getmaxyx()
-    return (max_row - settings.interface_rows, max_col)
