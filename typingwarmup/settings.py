@@ -9,7 +9,6 @@ meny_enter_key = {"\n", "\x1b"}
 meny_header_padding = 1
 meny_bottom_padding = 2
 
-env_ex_path = "WARMUP_EX_PATH"
 exercise_dir_name = "exercises"
 
 # skip_empty_rows = True # do we want this?

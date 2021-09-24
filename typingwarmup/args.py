@@ -1,10 +1,11 @@
 import argparse
+from pathlib import Path
 from typing import Optional
 
 import text
 
 
-def ex_name_from_args() -> Optional[str]:
+def ex_name_from_args() -> Optional[Path]:
     parser = argparse.ArgumentParser(description=text.app_name)
     parser.add_argument(
         "exercise",

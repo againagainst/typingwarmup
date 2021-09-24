@@ -1,6 +1,6 @@
 import curses
 import math
-from typing import List
+from typing import List, Optional
 
 import settings
 import text
@@ -18,6 +18,27 @@ class MenyUI(UI):
     def start(self) -> None:
         super().start()
         curses.curs_set(0)
+
+    def pick_name(self) -> Optional[str]:
+        input_char = ""
+        self.start()
+        while True:
+            self.render_model()
+            input_char = self.input()
+            if input_char in settings.meny_enter_key:
+                return self.model[self.model_idx(page_idx=self.cursor)]
+            elif input_char == settings.exit_key:
+                return None
+            elif input_char == settings.meny_up_key:
+                self.up()
+            elif input_char == settings.meny_down_key:
+                self.down()
+            elif input_char == settings.meny_page_up_key:
+                self.up(page=True)
+            elif input_char == settings.meny_page_down_key:
+                self.down(page=True)
+            else:
+                pass
 
     def render_model(self) -> None:
         self.clear()
@@ -61,9 +82,6 @@ class MenyUI(UI):
             self.cursor = 0
         else:
             self.cursor += 1
-
-    def ex_name(self) -> str:
-        return self.model[self.model_idx(page_idx=self.cursor)]
 
     def meny_items(self) -> List[str]:
         start = self.page * self.page_size()

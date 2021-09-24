@@ -62,4 +62,5 @@ special_keymap = {
     "\x1b": EOL,
     "\n": EOL,
     "\t": "↹",
+    "KEY_BTAB": "↹",
 }
