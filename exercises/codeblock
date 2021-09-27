@@ -1,0 +1,8 @@
+class WarmupModel:
+    def init(self, excercise: Path, shuffle=False):
+        exercise_text = read_exercise(excercise)
+        flag          = None
+        names         = {"Alice", "Bob"}
+        if shuffle:
+            exercise_text = shuffle_exercise(exercise_text)
+        header = "\n" * settings.header_padding

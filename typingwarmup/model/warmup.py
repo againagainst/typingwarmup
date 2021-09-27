@@ -44,6 +44,10 @@ class WarmupModel:
         self.offset_queue.append(new_offset)
         return self.offset_queue.pop(0)
 
+    def skip_spaces(self) -> None:
+        while self.cursor_char_equals(" "):
+            self.next()
+
     @staticmethod
     def init_offset_queue() -> List[int]:
         start = 1

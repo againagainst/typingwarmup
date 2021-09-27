@@ -1,5 +1,6 @@
 exit_key = "KEY_F(10)"
 clear_key = "KEY_BACKSPACE"
+tab_key = "\t"
 
 meny_up_key = "KEY_UP"
 meny_down_key = "KEY_DOWN"
@@ -12,6 +13,8 @@ meny_bottom_padding = 2
 exercise_dir_name = "exercises"
 
 # skip_empty_rows = True # do we want this?
+tab_to_skip_spaces = True
+new_line_on_space = False
 
 header_padding = 2
 bottom_padding = 1

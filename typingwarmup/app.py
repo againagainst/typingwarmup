@@ -32,6 +32,8 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
                 state.wrong_input = None
             else:
                 continue
+        elif is_skip_spaces(input_char, model):
+            model.skip_spaces()
         elif is_input_correct(input_char, model):
             if model.is_cursor_at_the_end():
                 break
@@ -52,8 +54,16 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
     return stats
 
 
+def is_skip_spaces(input_char: str, model: WarmupModel) -> bool:
+    return (
+        settings.tab_to_skip_spaces
+        and input_char == settings.tab_key
+        and model.cursor_char_equals(" ")
+    )
+
+
 def is_input_correct(input_char: str, model: WarmupModel) -> bool:
-    if model.is_cursor_at_eol():
+    if settings.new_line_on_space and model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)
 
