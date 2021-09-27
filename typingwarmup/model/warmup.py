@@ -1,6 +1,7 @@
 import random
 from pathlib import Path
 from typing import List
+from errors import NotAFileException
 
 import settings
 
@@ -55,8 +56,11 @@ class WarmupModel:
 
 
 def read_exercise(excercise: Path) -> str:
-    with open(excercise, "r") as fp:
-        return fp.read()
+    try:
+        with open(excercise, "r") as fp:
+            return fp.read()
+    except OSError as oserr:
+        raise NotAFileException(oserr.filename)
 
 
 def shuffle_exercise(text: str) -> str:

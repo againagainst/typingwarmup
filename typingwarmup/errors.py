@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import settings
 
@@ -25,3 +26,12 @@ class InvalidExcercisesDir(ApplicationException):
 
     def __str__(self) -> str:
         return ("Invalid path to the excercises directory: {0}\n").format(self.path)
+
+
+class NotAFileException(ApplicationException):
+    def __init__(self, path: Any, *args: object) -> None:
+        super().__init__(*args)
+        self.path = Path(str(path)).resolve()
+
+    def __str__(self) -> str:
+        return ("'{0}' is not a file or can not be open.").format(self.path)
