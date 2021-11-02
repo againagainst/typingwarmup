@@ -19,6 +19,7 @@ class WarmupModel:
 
         self.offset = 0
         self.offset_queue = self.init_offset_queue()
+        self.exercise_length = len(exercise_text)
 
     def next(self) -> None:
         self.position += 1

@@ -24,3 +24,6 @@ interface_rows = header_padding + bottom_padding + status_bar_rows
 minimum_text_rows = 2
 # App won't start if r,c = stdscr.getmaxyx(); r < minimum_rows
 minimum_rows = interface_rows + minimum_text_rows
+
+# persistance
+db_filename = "db/stats.shelve"

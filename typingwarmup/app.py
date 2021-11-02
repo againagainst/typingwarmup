@@ -18,7 +18,10 @@ def typing_warmup(stdscr) -> Optional[Stats]:
 def warmup_screen(stdscr, excercise: Path) -> Stats:
     model = WarmupModel(excercise)
     state = State()
-    stats = Stats()
+    stats = Stats(
+        exercise_length=model.exercise_length,
+        db_filename=app_path(to=settings.db_filename),
+    )
     input_char = ""
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
@@ -53,6 +56,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
             state.wrong_input = text.escape_key(input_char)
 
     ui.stop()
+    stats.persist()
     return stats
 
 
@@ -77,7 +81,13 @@ def resolve_ex_path(stdscr) -> Optional[Path]:
     if ex_name:
         ex_path = Path().resolve()  # cwd
     else:
-        app_dir = Path(__file__).resolve().parents[1]
-        ex_path = app_dir.joinpath(settings.exercise_dir_name)
+        ex_path = app_path(to=settings.exercise_dir_name)
         ex_name = MenyUI(stdscr, MenuModel.read_exercises(ex_path)).pick_name()
     return ex_path.joinpath(ex_name) if ex_name else None
+
+
+def app_path(to: Optional[str] = None) -> Path:
+    result = Path(__file__).resolve().parents[1]
+    if to:
+        result.joinpath(to)
+    return result
