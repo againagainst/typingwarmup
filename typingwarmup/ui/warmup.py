@@ -73,11 +73,10 @@ class WarmupUI(UI):
         return self.max_row - settings.interface_rows
 
     def cols_awailable(self) -> int:
-        return self.max_col
+        return self.max_col - 1
 
-    @staticmethod
-    def move_render_cursor(row: int, col: int, char: str) -> Tuple[int, int]:
-        if char == "\n":
+    def move_render_cursor(self, row: int, col: int, char: str) -> Tuple[int, int]:
+        if char == "\n" or col == self.cols_awailable():
             return (row + 1, 0)
         else:
             return (row, col + 1)
