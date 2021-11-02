@@ -7,6 +7,7 @@ finger_key_stat = "With {0}, {1} errors:\n"
 actual_expected_stat = "  '{0}' instead of '{1}', {2} times\n"
 
 unknown_symbol = "⍰"
+nonprinting_symbols = {"\t", "\n"}
 end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
 
@@ -40,9 +41,10 @@ def exit_msg(stats: Optional[Stats]) -> str:
 
 
 def escape_key(key: str) -> str:
-    if len(key) == 1 and key != "\n":
-        return key
-    return special_keymap.get(key, unknown_symbol)
+    default_escape_symbol = key
+    if key in nonprinting_symbols:
+        default_escape_symbol = unknown_symbol
+    return special_keymap.get(key, default_escape_symbol)
 
 
 EOL = "⏎"
