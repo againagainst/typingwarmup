@@ -27,6 +27,9 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
         ui.render_model()
         input_char = ui.input()
 
+        if input_char == settings.exit_key:
+            break
+
         if state.wrong_input:
             if input_char == settings.clear_key:
                 state.wrong_input = None
@@ -40,8 +43,6 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
             model.next()
         elif input_char == text.resize_event:
             pass
-        elif input_char == settings.exit_key:
-            break
         else:
             stats.add_error(
                 actual=input_char,
@@ -63,6 +64,8 @@ def is_skip_spaces(input_char: str, model: WarmupModel) -> bool:
 
 
 def is_input_correct(input_char: str, model: WarmupModel) -> bool:
+    if input_char == settings.skip_key:
+        return True
     if settings.new_line_on_space and model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)

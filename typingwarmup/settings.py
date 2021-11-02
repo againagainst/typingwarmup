@@ -1,6 +1,7 @@
 exit_key = "KEY_F(10)"
 clear_key = "KEY_BACKSPACE"
 tab_key = "\t"
+skip_key = "KEY_RIGHT"
 
 meny_up_key = "KEY_UP"
 meny_down_key = "KEY_DOWN"
