@@ -49,7 +49,7 @@ def exit_msg(stats: Optional[Stats]) -> str:
 
 def escape_key(key: str) -> str:
     default_escape_symbol = key
-    if key in nonprinting_symbols:
+    if key in nonprinting_symbols or len(key) > 1:
         default_escape_symbol = unknown_symbol
     return special_keymap.get(key, default_escape_symbol)
 
