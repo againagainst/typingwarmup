@@ -14,6 +14,7 @@ class WarmupModel:
         header = "\n" * settings.header_padding
         self.exercise = header + exercise_text
         self.position = settings.header_padding
+        self.length = len(exercise_text)
 
         self.offset = 0
         self.offset_queue = self.init_offset_queue()

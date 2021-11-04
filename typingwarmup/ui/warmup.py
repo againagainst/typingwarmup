@@ -45,6 +45,7 @@ class WarmupUI(UI):
         status = text.status_bar(
             errors=self.stats.error_count(),
             is_err_state=bool(self.state.wrong_input),
+            model=self.model,
         )
         self.render_line_in_status_bar(status)
 

@@ -1,4 +1,5 @@
 from typing import Optional
+from model.warmup import WarmupModel
 import settings
 from stats import Stats
 
@@ -20,10 +21,16 @@ def menu_item(idx: int, name: str) -> str:
     return "{0:>2}. {1}".format(idx + 1, name)
 
 
-def status_bar(errors: Optional[int] = None, is_err_state: bool = False):
-    msg = "{name} | Press `{exit_key}` to exit".format(
-        name=app_name, exit_key=settings.exit_key
-    )
+def status_bar(
+    errors: Optional[int] = None,
+    is_err_state: bool = False,
+    model: Optional[WarmupModel] = None,
+):
+    msg = app_name
+    if model:
+        position = model.position - settings.header_padding
+        msg += " | {pos}:{total}".format(pos=position, total=model.length)
+    msg += " | Press `{exit_key}` to exit".format(exit_key=settings.exit_key)
     if is_err_state:
         msg += " | Wrong key; press `{0}` to continue".format(settings.clear_key)
     elif errors:
