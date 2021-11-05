@@ -40,8 +40,10 @@ def status_bar(
 
 def exit_msg(stats: Optional[Stats]) -> str:
     if stats:
-        return "Good job! Total errors: {error_count}\n{stats}".format(
-            error_count=stats.error_count(), stats=stats.formatted()
+        return "Good job! Typed: {sybols_count}, Errors: {error_count}\n{stats}".format(
+            sybols_count=stats.symbols_typed,
+            error_count=stats.error_count(),
+            stats=stats.formatted(),
         )
     else:
         return "Bye!"

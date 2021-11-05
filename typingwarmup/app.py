@@ -40,6 +40,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
         elif is_input_correct(input_char, model):
             if model.is_cursor_at_the_end():
                 break
+            stats.add_typed()
             model.next()
         elif input_char == text.resize_event:
             pass

@@ -11,6 +11,10 @@ TypingError = namedtuple("TypingError", ["expected", "actual"])
 class Stats:
     def __init__(self):
         self.data = defaultdict(lambda: defaultdict(int))
+        self.symbols_typed = 0
+
+    def add_typed(self) -> None:
+        self.symbols_typed += 1
 
     def add_error(self, actual: str, expected: str, is_eol: bool) -> None:
         key_actual = text.escape_key(actual)
