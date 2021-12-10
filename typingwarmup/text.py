@@ -1,3 +1,5 @@
+import unicodedata
+
 from typing import Optional
 from model.warmup import WarmupModel
 import settings
@@ -8,13 +10,16 @@ finger_key_stat = "With {0}, {1} errors:\n"
 actual_expected_stat = "  '{0}' instead of '{1}', {2} times\n"
 
 unknown_symbol = "⍰"
-nonprinting_symbols = {"\t", "\n"}
 end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
 
 arg_description = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
 )
+
+
+def is_control_char(ch: str) -> bool:
+    return unicodedata.category(ch[0]) == "Cc"
 
 
 def menu_item(idx: int, name: str) -> str:
@@ -51,7 +56,7 @@ def exit_msg(stats: Optional[Stats]) -> str:
 
 def escape_key(key: str) -> str:
     default_escape_symbol = key
-    if key in nonprinting_symbols or len(key) > 1:
+    if is_control_char(key) or len(key) > 1:
         default_escape_symbol = unknown_symbol
     return special_keymap.get(key, default_escape_symbol)
 
