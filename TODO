@@ -1,0 +1,5 @@
+* Shift errors ("a" instead of "A")
+* Score errors/typed, formula: 100 - (Errors * 1250 / Typed)
+* Ignore EOL/space mistakes
+* No scroll if exercise fits
+* Typing to the middle then scroll

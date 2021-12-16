@@ -8,19 +8,24 @@ import urllib.request
 from pathlib import Path
 from typing import Dict, List
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    description="Fetches a random featured Wiki article for typing warmup."
+)
 parser.add_argument(
     "--output",
-    help="Output directory, default: current.",
+    help="path to put the article into, default: current",
     type=Path,
     default=Path().resolve(),
 )
-parser.add_argument("--size", help="Desired  size of the page.", type=int, default=3200)
-parser.add_argument("--limit", help="Max size of the page.", type=int, default=4200)
-parser.add_argument("--quiet", "-q", help="Disable logging.", type=bool, default=False)
+parser.add_argument("--size", help="desired  size of the page", type=int, default=3200)
+parser.add_argument("--limit", help="max size of the page", type=int, default=4200)
+parser.add_argument("--quiet", "-q", help="disable logging", action="store_true")
 args = parser.parse_args()
 
 empty_header_re = re.compile(r"=+\s\w+\s=+\n\n\n")
+few_eols_re = re.compile(r"\n{2,}")
+few_spaces_re = re.compile(r"\ {2,}")
+no_space_re = re.compile(r"([.?!:;])(\w)")
 
 
 def random_featured_article_title() -> List[str]:
@@ -79,8 +84,11 @@ def pages_to_articles(pages: Dict, size: int, limit: int) -> Dict[str, str]:
         text = chop_paragraph(text, size, limit)
 
         logging.info("Removing weird UTF characters;")
-        text = text.replace("\n\n", "\n")
         text = unicodedata.normalize("NFKD", text)
+        text = few_eols_re.sub("\n", text)
+        text = few_spaces_re.sub(" ", text)
+        text = no_space_re.sub(r"\1 \2", text)
+
         result[title] = text
         logging.info("Done.")
     return result
