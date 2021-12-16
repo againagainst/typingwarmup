@@ -20,7 +20,8 @@ class WarmupUI(UI):
 
     def start(self) -> None:
         super().start()
-        curses.curs_set(1)
+        # Causes exception if export xterm=color
+        # curses.curs_set(1)
 
     def render_model(self) -> None:
         self.clear()
