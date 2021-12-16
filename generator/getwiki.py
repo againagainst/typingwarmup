@@ -23,6 +23,7 @@ parser.add_argument("--quiet", "-q", help="disable logging", action="store_true"
 args = parser.parse_args()
 
 empty_header_re = re.compile(r"=+\s\w+\s=+\n\n\n")
+sticks_re = re.compile(r"[֊‐‑‒–—―⸺⸻﹘﹣－]")
 few_eols_re = re.compile(r"\n{2,}")
 few_spaces_re = re.compile(r"\ {2,}")
 no_space_re = re.compile(r"([.?!:;])(\w)")
@@ -85,6 +86,10 @@ def pages_to_articles(pages: Dict, size: int, limit: int) -> Dict[str, str]:
 
         logging.info("Removing weird UTF characters;")
         text = unicodedata.normalize("NFKD", text)
+        text = sticks_re.sub("-", text)
+
+        logging.info("Converting to ASCII;")
+        text = text.encode("ascii", "ignore").decode("ascii")
         text = few_eols_re.sub("\n", text)
         text = few_spaces_re.sub(" ", text)
         text = no_space_re.sub(r"\1 \2", text)
@@ -111,9 +116,7 @@ def write_articles_to_file(articles: Dict[str, str], dir: Path) -> None:
     for title, text in articles.items():
         full_path = dir.joinpath(title)
         logging.info('Full path is: "%s";', full_path)
-        logging.info("Converting to ASCII;")
-        text = text.encode("ascii", "ignore")
-        with open(full_path, "wb") as f:
+        with open(full_path, "w") as f:
             logging.info("Writing;")
             f.write(text)
         logging.info("Done.")
