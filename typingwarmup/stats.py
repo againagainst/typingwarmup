@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict, namedtuple
 from typing import List, Tuple
 
@@ -24,6 +25,17 @@ class Stats:
 
     def error_count(self) -> int:
         return sum(map(lambda d: sum(d.values()), self.data.values()))
+
+    def score(self) -> str:
+        if self.symbols_typed == 0:
+            return "unavailable"
+        err_count = self.error_count()
+        if err_count > self.symbols_typed:
+            return "0/100"
+
+        max_score = 100
+        score = round((1 - math.log(err_count + 1, self.symbols_typed)) * max_score)
+        return "{0}/{1}".format(score, max_score)
 
     def formatted(self) -> str:
         result = ""

@@ -1,9 +1,10 @@
+import math
 import random
 from pathlib import Path
-from typing import List
-from errors import NotAFileException
+from typing import Dict, List
 
 import settings
+from errors import NotAFileException
 
 
 class WarmupModel:
@@ -49,6 +50,11 @@ class WarmupModel:
     def skip_spaces(self) -> None:
         while self.cursor_char_equals(" "):
             self.next()
+
+    def progress(self) -> Dict[str, int]:
+        position = self.position - settings.header_padding
+        percent = math.floor(position / self.length * 100) if self.length else 100
+        return {"position": position, "total": self.length, "percent": percent}
 
     @staticmethod
     def init_offset_queue() -> List[int]:

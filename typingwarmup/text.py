@@ -31,24 +31,29 @@ def status_bar(
     is_err_state: bool = False,
     model: Optional[WarmupModel] = None,
 ):
-    msg = app_name
+    messages = [
+        app_name,
+    ]
     if model:
-        position = model.position - settings.header_padding
-        msg += " | {pos}:{total}".format(pos=position, total=model.length)
-    msg += " | Press `{exit_key}` to exit".format(exit_key=settings.exit_key)
+        messages.append("{position}:{total} {percent}%".format(**model.progress()))
+    if errors:
+        messages.append("{0} errors".format(errors))
     if is_err_state:
-        msg += " | Wrong key; press `{0}` to continue".format(settings.clear_key)
-    elif errors:
-        msg += " | {0} errors".format(errors)
-    return msg
+        messages.append("Wrong key; press `{0}` to continue".format(settings.clear_key))
+    messages.append("Press `{0}` to exit".format(settings.exit_key))
+    return " | ".join(messages)
 
 
 def exit_msg(stats: Optional[Stats]) -> str:
     if stats:
-        return "Good job! Typed: {sybols_count}, Errors: {error_count}\n{stats}".format(
+        return (
+            "All done! Typed: {sybols_count}, errors: {error_count}, score: {score}\n"
+            + "{stats}"
+        ).format(
             sybols_count=stats.symbols_typed,
             error_count=stats.error_count(),
             stats=stats.formatted(),
+            score=stats.score(),
         )
     else:
         return "Bye!"
