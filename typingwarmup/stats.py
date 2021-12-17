@@ -1,20 +1,19 @@
 import math
 import shelve
-from collections import defaultdict, namedtuple
-from typing import List, Tuple, cast
 from copy import copy
+from datetime import datetime
+from itertools import groupby, starmap
 from pathlib import Path
+from typing import Dict, Iterable, List, Tuple
 
 import text
-from layout import Finger, ISO as LayoutISO
-
-
-TypingError = namedtuple("TypingError", ["expected", "actual"])
+from layout import Finger
+from mistake import Mistake, key_expected, key_finger_expected
 
 
 class Stats:
     def __init__(self, exercise_length: int, db_filename: Path):
-        self.records = defaultdict(lambda: defaultdict(int))
+        self.records: List[Mistake] = []
         self.symbols_typed = 0
         self.exercise_length = exercise_length
         self.db_filename = str(db_filename)
@@ -22,14 +21,14 @@ class Stats:
     def add_typed(self) -> None:
         self.symbols_typed += 1
 
-    def add_error(self, actual: str, expected: str, is_eol: bool) -> None:
+    def add_mistake(self, actual: str, expected: str, is_eol: bool) -> None:
         key_actual = text.escape_key(actual)
         key_expected = text.EOL if is_eol else text.escape_key(expected)
-        finger = LayoutISO.get(key_expected, Finger.other)
-        self.records[finger][TypingError(key_expected, key_actual)] += 1
+        mistake = Mistake(key_actual, key_expected)
+        self.records.append(mistake)
 
     def error_count(self) -> int:
-        return sum(map(lambda d: sum(d.values()), self.records.values()))
+        return len(self.records)
 
     def score(self) -> str:
         if self.symbols_typed == 0:
@@ -44,52 +43,36 @@ class Stats:
 
     def formatted(self) -> str:
         result = ""
-        for finger, errors_on_key, exp_act_dict in self.sorted():
-            result += text.finger_key_stat.format(finger, errors_on_key)
-            for keys, count in exp_act_dict:
+        for finger, mistakes in _group_by_finger(self.records):
+            mistakes_list = list(mistakes)
+            result += text.finger_key_stat.format(finger, len(mistakes_list))
+            for mistake, count in _group_by_mistake(mistakes_list):
                 result += text.actual_expected_stat.format(
-                    keys.actual, keys.expected, count
+                    mistake.actual, mistake.expected, count
                 )
             result += "\n"
         return result
 
-    def sorted(self) -> List[Tuple[str, int, List[Tuple[TypingError, int]]]]:
-        """
-        {
-            a: {b: 1, c: 2},
-            d: {b: 1, c: 1}
-        } -> [
-            (a, 3, [(b, 1), (c, 2)]),
-            (d, 2, [(b, 1), (c, 1)])
-        ]
-        """
-        result = []
-        for finger, exp_act_dict in self.records.items():
-            exp_act_list = sorted(
-                exp_act_dict.items(), key=lambda k: k[1], reverse=True
-            )
-            errors_on_key = sum(map(lambda k: k[1], exp_act_list))
-            result.append((finger.value, errors_on_key, exp_act_list))
-        result.sort(key=lambda k: k[1], reverse=True)
-        return result
-
     def persist(self) -> None:
-        current_records = cast(dict, copy(self.records))
+        timestamp = datetime.now().strftime(r"%Y-%m-%dT%H:%M:%S")
         with shelve.open(self.db_filename) as db:
-            previous_records = cast(dict, db.get("records", dict()))
-            for finger, typing_error_count in previous_records:
-                for typing_error, count in typing_error_count:
-                    current_records[finger][typing_error] += count
-            db["records"] = current_records
+            db[timestamp] = copy(self.records)
 
-            previous_exercise_length = cast(int, db.get("exercise_length", 0))
-            db["exercise_length"] = previous_exercise_length + self.exercise_length
-
-    def load(self) -> None:
+    def load(self) -> Dict[str, List[Mistake]]:
         with shelve.open(self.db_filename) as db:
-            previous_records = cast(dict, db.get("records", dict()))
-            for finger, typing_error_count in previous_records:
-                for typing_error, count in typing_error_count:
-                    self.records[finger][typing_error] = count
+            return db
 
-            self.exercise_length = cast(int, db.get("exercise_length", 0))
+
+Mistakes = Iterable[Mistake]
+
+
+def _group_by_finger(data: Mistakes) -> Iterable[Tuple[Finger, Mistakes]]:
+    return groupby(sorted(data, key=key_finger_expected), key=key_finger_expected)
+
+
+def _group_by_mistake(data: Mistakes) -> Iterable[Tuple[Mistake, int]]:
+    return starmap(_count_in_group, groupby(sorted(data, key=key_expected)))
+
+
+def _count_in_group(mistake: Mistake, group: Mistakes) -> Tuple[Mistake, int]:
+    return (mistake, len(list(group)))

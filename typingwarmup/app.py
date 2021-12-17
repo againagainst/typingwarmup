@@ -48,7 +48,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
         elif input_char == text.resize_event:
             pass
         else:
-            stats.add_error(
+            stats.add_mistake(
                 actual=input_char,
                 expected=model.cursor_char(),
                 is_eol=model.is_cursor_at_eol(),
@@ -89,5 +89,5 @@ def resolve_ex_path(stdscr) -> Optional[Path]:
 def app_path(to: Optional[str] = None) -> Path:
     result = Path(__file__).resolve().parents[1]
     if to:
-        result.joinpath(to)
+        result = result.joinpath(to)
     return result
