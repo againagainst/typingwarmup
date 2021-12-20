@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+import disk
 import settings
 import text
 from args import ex_name_from_args
@@ -11,21 +12,24 @@ from ui import MenyUI, WarmupUI
 
 
 def typing_warmup(stdscr) -> Optional[Stats]:
-    ex_full_path = resolve_ex_path(stdscr)
+    ex_name = ex_name_from_args()
+    if ex_name:
+        ex_path = Path().resolve()  # cwd
+    else:
+        ex_path = disk.exercise_dir()
+        ex_name = MenyUI(stdscr, MenuModel.read_exercises(ex_path)).pick_name()
+    ex_full_path = ex_path.joinpath(ex_name) if ex_name else None
     return warmup_screen(stdscr, ex_full_path) if ex_full_path else None
 
 
 def warmup_screen(stdscr, excercise: Path) -> Stats:
     model = WarmupModel(excercise)
     state = State()
-    stats = Stats(
-        exercise_length=model.exercise_length,
-        db_filename=app_path(to=settings.db_filename),
-    )
-    input_char = ""
+    stats = Stats(exercise_length=model.exercise_length)
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
+    input_char = ""
     while True:
         ui.render_model()
         input_char = ui.input()
@@ -56,7 +60,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
             state.wrong_input = text.escape_key(input_char)
 
     ui.stop()
-    stats.persist()
+    disk.persist(stats)
     return stats
 
 
@@ -74,20 +78,3 @@ def is_input_correct(input_char: str, model: WarmupModel) -> bool:
     if settings.new_line_on_space and model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)
-
-
-def resolve_ex_path(stdscr) -> Optional[Path]:
-    ex_name = ex_name_from_args()
-    if ex_name:
-        ex_path = Path().resolve()  # cwd
-    else:
-        ex_path = app_path(to=settings.exercise_dir_name)
-        ex_name = MenyUI(stdscr, MenuModel.read_exercises(ex_path)).pick_name()
-    return ex_path.joinpath(ex_name) if ex_name else None
-
-
-def app_path(to: Optional[str] = None) -> Path:
-    result = Path(__file__).resolve().parents[1]
-    if to:
-        result = result.joinpath(to)
-    return result

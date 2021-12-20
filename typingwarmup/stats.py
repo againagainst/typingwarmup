@@ -1,22 +1,18 @@
 import math
-import shelve
-from copy import copy
-from datetime import datetime
 from itertools import groupby, starmap
-from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Iterable, List, Tuple
 
 import text
+
 from layout import Finger
 from mistake import Mistake, key_expected, key_finger_expected
 
 
 class Stats:
-    def __init__(self, exercise_length: int, db_filename: Path):
+    def __init__(self, exercise_length: int):
         self.records: List[Mistake] = []
         self.symbols_typed = 0
         self.exercise_length = exercise_length
-        self.db_filename = str(db_filename)
 
     def add_typed(self) -> None:
         self.symbols_typed += 1
@@ -26,6 +22,14 @@ class Stats:
         key_expected = text.EOL if is_eol else text.escape_key(expected)
         mistake = Mistake(key_actual, key_expected)
         self.records.append(mistake)
+
+    def exit_msg(self) -> str:
+        numbers = text.exit_msg.format(
+            sybols_count=self.symbols_typed,
+            error_count=self.error_count(),
+            score=self.score(),
+        )
+        return numbers + "\n" + self.mistakes_formatted()
 
     def error_count(self) -> int:
         return len(self.records)
@@ -41,7 +45,7 @@ class Stats:
         score = round((1 - math.log(err_count + 1, self.symbols_typed)) * max_score)
         return "{0}/{1}".format(score, max_score)
 
-    def formatted(self) -> str:
+    def mistakes_formatted(self) -> str:
         result = ""
         for finger, mistakes in _group_by_finger(self.records):
             mistakes_list = list(mistakes)
@@ -52,15 +56,6 @@ class Stats:
                 )
             result += "\n"
         return result
-
-    def persist(self) -> None:
-        timestamp = datetime.now().strftime(r"%Y-%m-%dT%H:%M:%S")
-        with shelve.open(self.db_filename) as db:
-            db[timestamp] = copy(self.records)
-
-    def load(self) -> Dict[str, List[Mistake]]:
-        with shelve.open(self.db_filename) as db:
-            return db
 
 
 Mistakes = Iterable[Mistake]

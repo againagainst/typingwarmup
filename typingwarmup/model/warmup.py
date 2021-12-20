@@ -3,13 +3,13 @@ import random
 from pathlib import Path
 from typing import Dict, List
 
+import disk
 import settings
-from errors import NotAFileException
 
 
 class WarmupModel:
     def __init__(self, excercise: Path, shuffle=False):
-        exercise_text = read_exercise(excercise)
+        exercise_text = disk.read_exercise(excercise)
         if shuffle:
             exercise_text = shuffle_exercise(exercise_text)
         header = "\n" * settings.header_padding
@@ -61,14 +61,6 @@ class WarmupModel:
     def init_offset_queue() -> List[int]:
         start = 1
         return list(range(start, settings.header_padding + start))
-
-
-def read_exercise(excercise: Path) -> str:
-    try:
-        with open(excercise, "r") as fp:
-            return fp.read()
-    except OSError as oserr:
-        raise NotAFileException(oserr.filename)
 
 
 def shuffle_exercise(text: str) -> str:

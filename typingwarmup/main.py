@@ -11,7 +11,8 @@ def main():
     except ApplicationException as error:
         print(error)
     else:
-        print(text.exit_msg(stats))
+        exit_msg = stats.exit_msg() if stats else text.default_exit_msg
+        print(exit_msg)
 
 
 if __name__ == "__main__":

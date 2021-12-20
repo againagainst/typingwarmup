@@ -3,7 +3,6 @@ import unicodedata
 from typing import Optional
 from model.warmup import WarmupModel
 import settings
-from stats import Stats
 
 app_name = "Typing Warmup"
 finger_key_stat = "With {0}, {1} errors:\n"
@@ -16,6 +15,9 @@ resize_event = "KEY_RESIZE"
 arg_description = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
 )
+
+exit_msg = "All done! Typed: {sybols_count}, errors: {error_count}, score: {score}\n"
+default_exit_msg = "Bye!"
 
 
 def is_control_char(ch: str) -> bool:
@@ -42,21 +44,6 @@ def status_bar(
         messages.append("Wrong key; press `{0}` to continue".format(settings.clear_key))
     messages.append("Press `{0}` to exit".format(settings.exit_key))
     return " | ".join(messages)
-
-
-def exit_msg(stats: Optional[Stats]) -> str:
-    if stats:
-        return (
-            "All done! Typed: {sybols_count}, errors: {error_count}, score: {score}\n"
-            + "{stats}"
-        ).format(
-            sybols_count=stats.symbols_typed,
-            error_count=stats.error_count(),
-            stats=stats.formatted(),
-            score=stats.score(),
-        )
-    else:
-        return "Bye!"
 
 
 def escape_key(key: str) -> str:
