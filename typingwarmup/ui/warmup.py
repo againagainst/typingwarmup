@@ -44,7 +44,7 @@ class WarmupUI(UI):
                 break
 
         status = text.status_bar(
-            errors=self.stats.error_count(),
+            errors=self.stats.mistakes_count(),
             is_err_state=bool(self.state.wrong_input),
             progress=self.stats.progress(),
         )

@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+import analysis
 import disk
 import settings
 import text
@@ -58,9 +59,8 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
                 is_eol=model.is_cursor_at_eol(),
             )
             state.wrong_input = text.escape_key(input_char)
-
     ui.stop()
-    disk.persist(stats)
+    analysis.persist(excercise, stats)
     return stats
 
 

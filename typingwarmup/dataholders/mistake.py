@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from layout import Finger, ISO as LayoutISO
+from dataholders.finger import Finger
+from dataholders.layout import ISO as LayoutISO
 
 
 @dataclass

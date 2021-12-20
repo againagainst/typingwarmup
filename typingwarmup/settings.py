@@ -13,6 +13,8 @@ meny_bottom_padding = 2
 
 exercise_dir_name = "exercises"
 
+max_score = 100
+
 # skip_empty_rows = True # do we want this?
 tab_to_skip_spaces = True
 new_line_on_space = False

@@ -1,12 +1,8 @@
-import shelve
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-
 import settings
 from errors import EmptyExcerciseException, NotAFileException
-from stats import Stats
 
 
 def read_exercise(excercise: Path) -> str:
@@ -33,17 +29,3 @@ def path(to: Optional[str] = None) -> Path:
     if to:
         result = result.joinpath(to)
     return result
-
-
-def persist(stats: Stats) -> None:
-    if not stats.records:
-        return
-
-    timestamp = datetime.now().strftime(r"%Y-%m-%dT%H:%M:%S")
-    with shelve.open(db_filename()) as db:
-        db[timestamp] = stats.records
-
-
-def load():
-    with shelve.open(db_filename()) as db:
-        return db
