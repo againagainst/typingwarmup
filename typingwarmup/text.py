@@ -1,7 +1,6 @@
 import unicodedata
+from typing import Dict, Optional
 
-from typing import Optional
-from model.warmup import WarmupModel
 import settings
 
 app_name = "Typing Warmup"
@@ -11,6 +10,7 @@ actual_expected_stat = "  '{0}' instead of '{1}', {2} times\n"
 unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
+unavailable = "unavailable"
 
 arg_description = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
@@ -31,13 +31,13 @@ def menu_item(idx: int, name: str) -> str:
 def status_bar(
     errors: Optional[int] = None,
     is_err_state: bool = False,
-    model: Optional[WarmupModel] = None,
+    progress: Optional[Dict] = None,
 ):
     messages = [
         app_name,
     ]
-    if model:
-        messages.append("{position}:{total} {percent}%".format(**model.progress()))
+    if progress:
+        messages.append("{position}:{total} {percent}%".format(**progress))
     if errors:
         messages.append("{0} errors".format(errors))
     if is_err_state:

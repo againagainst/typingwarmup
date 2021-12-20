@@ -25,7 +25,7 @@ def typing_warmup(stdscr) -> Optional[Stats]:
 def warmup_screen(stdscr, excercise: Path) -> Stats:
     model = WarmupModel(excercise)
     state = State()
-    stats = Stats(exercise_length=model.exercise_length)
+    stats = Stats(exercise_length=model.length)
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 

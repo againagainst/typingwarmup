@@ -35,3 +35,12 @@ class NotAFileException(ApplicationException):
 
     def __str__(self) -> str:
         return ("'{0}' is not a file or can not be open.").format(self.path)
+
+
+class EmptyExcerciseException(ApplicationException):
+    def __init__(self, path: Any, *args: object) -> None:
+        super().__init__(*args)
+        self.path = Path(str(path)).resolve()
+
+    def __str__(self) -> str:
+        return ("'{0}' is empty.").format(self.path)

@@ -1,6 +1,6 @@
 import math
 from itertools import groupby, starmap
-from typing import Iterable, List, Tuple
+from typing import Dict, Iterable, List, Tuple
 
 import text
 
@@ -31,12 +31,19 @@ class Stats:
         )
         return numbers + "\n" + self.mistakes_formatted()
 
+    def progress(self) -> Dict[str, int]:
+        return {
+            "position": self.symbols_typed,
+            "total": self.exercise_length,
+            "percent": math.floor(self.symbols_typed / self.exercise_length * 100),
+        }
+
     def error_count(self) -> int:
         return len(self.records)
 
     def score(self) -> str:
         if self.symbols_typed == 0:
-            return "unavailable"
+            return text.unavailable
         err_count = self.error_count()
         if err_count > self.symbols_typed:
             return "0/100"

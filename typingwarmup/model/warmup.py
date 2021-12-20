@@ -1,7 +1,6 @@
-import math
 import random
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 import disk
 import settings
@@ -12,14 +11,14 @@ class WarmupModel:
         exercise_text = disk.read_exercise(excercise)
         if shuffle:
             exercise_text = shuffle_exercise(exercise_text)
+        self.length = len(exercise_text)
+
         header = "\n" * settings.header_padding
         self.exercise = header + exercise_text
         self.position = settings.header_padding
-        self.length = len(exercise_text)
 
         self.offset = 0
         self.offset_queue = self.init_offset_queue()
-        self.exercise_length = len(exercise_text)
 
     def next(self) -> None:
         self.position += 1
@@ -51,11 +50,6 @@ class WarmupModel:
     def skip_spaces(self) -> None:
         while self.cursor_char_equals(" "):
             self.next()
-
-    def progress(self) -> Dict[str, int]:
-        position = self.position - settings.header_padding
-        percent = math.floor(position / self.length * 100) if self.length else 100
-        return {"position": position, "total": self.length, "percent": percent}
 
     @staticmethod
     def init_offset_queue() -> List[int]:

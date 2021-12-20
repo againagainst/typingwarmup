@@ -5,14 +5,17 @@ from typing import Optional
 
 
 import settings
-from errors import NotAFileException
+from errors import EmptyExcerciseException, NotAFileException
 from stats import Stats
 
 
 def read_exercise(excercise: Path) -> str:
     try:
         with open(excercise, "r") as fp:
-            return fp.read()
+            content = fp.read()
+            if not content:
+                raise EmptyExcerciseException(excercise)
+            return content
     except OSError as oserr:
         raise NotAFileException(oserr.filename)
 
