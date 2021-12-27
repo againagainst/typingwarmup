@@ -1,16 +1,23 @@
 import math
-from itertools import groupby, starmap
-from typing import Dict, Iterable, List, Tuple
+from itertools import groupby
+from typing import Any, Dict, List, Tuple
 
-import text
 import settings
+import text
 from dataholders.finger import Finger
-from dataholders.mistake import Mistake, key_expected, key_finger_expected
+from dataholders.mistake import (
+    Mistake,
+    Mistakes,
+    key_actual,
+    key_expected,
+    key_expected_combined,
+    key_expected_finger,
+)
 
 
 class Stats:
     def __init__(self, exercise_length: int):
-        self.mistakes: List[Mistake] = []
+        self.mistakes: Mistakes = []
         self.symbols_typed = 0
         self.exercise_length = exercise_length
 
@@ -58,27 +65,59 @@ class Stats:
 
     def mistakes_formatted(self) -> str:
         result = ""
+        headers_only = self.mistakes_count() > 100
+        compact = 100 > self.mistakes_count() > 30
         for finger, mistakes in _group_by_finger(self.mistakes):
-            mistakes_list = list(mistakes)
-            result += text.finger_key_stat.format(finger, len(mistakes_list))
-            for mistake, count in _count_mistakes(mistakes_list):
-                result += text.actual_expected_stat.format(
-                    mistake.actual, mistake.expected, count
+            header_message = (
+                text.finger_key_stat_message
+                if headers_only
+                else text.finger_key_stat_header
+            )
+            result += header_message.format(finger, len(mistakes))
+            if headers_only:
+                continue
+            for expected, group in _group_by_expected(mistakes):
+                actual = set("'{0}'".format(mistake.actual) for mistake in group)
+                result += text.expected_simple_stat.format(
+                    actual=", ".join(actual), expected=expected, times=len(group)
                 )
+                if compact and len(group) == 1:
+                    break
             result += "\n"
         return result
 
 
-Mistakes = Iterable[Mistake]
+def _group_by_finger(data: Mistakes) -> List[Tuple[Finger, Mistakes]]:
+    gpd = [
+        (finger, list(mistakes))
+        for finger, mistakes in groupby(
+            sorted(data, key=key_expected_combined),
+            key=key_expected_finger,
+        )
+    ]
+    return sorted(gpd, key=_by_group_size, reverse=True)
 
 
-def _group_by_finger(data: Mistakes) -> Iterable[Tuple[Finger, Mistakes]]:
-    return groupby(sorted(data, key=key_finger_expected), key=key_finger_expected)
+def _group_by_mistake(data: Mistakes) -> List[Tuple[Mistake, Mistakes]]:
+
+    gpd = [
+        (mistake, list(group))
+        for mistake, group in groupby(sorted(data, key=key_actual))
+    ]
+    return sorted(gpd, key=_by_group_size_and_expected, reverse=True)
 
 
-def _count_mistakes(data: Mistakes) -> Iterable[Tuple[Mistake, int]]:
-    return starmap(_count_in_group, groupby(sorted(data, key=key_expected)))
+def _group_by_expected(data: Mistakes) -> List[Tuple[str, Mistakes]]:
+    gpd = [
+        (mistake, list(group))
+        for mistake, group in groupby(sorted(data, key=key_expected), key=key_expected)
+    ]
+    return sorted(gpd, key=_by_group_size, reverse=True)
 
 
-def _count_in_group(mistake: Mistake, group: Mistakes) -> Tuple[Mistake, int]:
-    return (mistake, len(list(group)))
+def _by_group_size_and_expected(group: Tuple[Mistake, Mistakes]):
+    return (len(group[1]), group[0].expected)
+
+
+def _by_group_size(group: Tuple[Any, Mistakes]):
+    return len(group[1])

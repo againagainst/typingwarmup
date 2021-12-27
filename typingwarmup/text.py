@@ -4,8 +4,11 @@ from typing import Dict, Optional
 import settings
 
 app_name = "Typing Warmup"
-finger_key_stat = "With {0}, {1} errors:\n"
-actual_expected_stat = "  '{0}' instead of '{1}', {2} times\n"
+finger_key_stat_header = "With {0}, {1} errors:\n"
+finger_key_stat_message = "With {0}, {1} errors.\n"
+actual_expected_stat = "  '{actual}' instead of '{expected}, {times} times'\n"
+expected_actual_stat = "  instead of '{expected}' got {actual}: {times} times\n"
+expected_simple_stat = "{times: 3} errors typing '{expected}'\n"
 
 unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
