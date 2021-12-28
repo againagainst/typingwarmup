@@ -8,13 +8,13 @@ from dataholders.dbrecord import DbRecord
 from stats import Stats
 
 
-def persist(excercise: Path, stats: Stats) -> None:
+def persist(excercise_path: Path, excercise_text: str, stats: Stats) -> None:
     record = DbRecord(
-        excercise.name,
-        stats.exercise_length,
-        stats.symbols_typed,
-        stats.score(),
-        stats.mistakes,
+        excercise_name=excercise_path.name,
+        excercise_text=excercise_text,
+        symbols_typed=stats.symbols_typed,
+        score=stats.score(),
+        mistakes=stats.mistakes,
     )
     timestamp = datetime.now().strftime(r"%Y-%m-%dT%H:%M:%S")
     with shelve.open(disk.db_filename()) as db:

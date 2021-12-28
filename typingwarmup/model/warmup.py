@@ -1,14 +1,11 @@
 import random
-from pathlib import Path
 from typing import List
 
-import disk
 import settings
 
 
 class WarmupModel:
-    def __init__(self, excercise: Path, shuffle=False):
-        exercise_text = disk.read_exercise(excercise)
+    def __init__(self, exercise_text: str, shuffle=False):
         if shuffle:
             exercise_text = shuffle_exercise(exercise_text)
         self.length = len(exercise_text)

@@ -18,15 +18,17 @@ def typing_warmup(stdscr) -> Optional[Stats]:
         ex_path = Path().resolve()  # cwd
     else:
         ex_path = disk.exercise_dir()
-        ex_name = MenyUI(stdscr, MenuModel.read_exercises(ex_path)).pick_name()
+        menu = MenyUI(stdscr, MenuModel.read_exercises(ex_path))
+        ex_name = menu.pick_name()
     ex_full_path = ex_path.joinpath(ex_name) if ex_name else None
     return warmup_screen(stdscr, ex_full_path) if ex_full_path else None
 
 
-def warmup_screen(stdscr, excercise: Path) -> Stats:
-    model = WarmupModel(excercise)
+def warmup_screen(stdscr, excercise_path: Path) -> Stats:
+    exercise_text = disk.read_exercise(excercise_path)
+    model = WarmupModel(exercise_text)
+    stats = Stats(exercise_length=len(exercise_text))
     state = State()
-    stats = Stats(exercise_length=model.length)
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
@@ -60,7 +62,7 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
             )
             state.wrong_input = text.escape_key(input_char)
     ui.stop()
-    analysis.persist(excercise, stats)
+    analysis.persist(excercise_path, exercise_text, stats)
     return stats
 
 
