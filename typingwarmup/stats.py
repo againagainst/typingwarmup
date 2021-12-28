@@ -1,18 +1,10 @@
 import math
-from itertools import groupby
-from typing import Any, Dict, List, Tuple
+from typing import Dict
 
 import settings
 import text
-from dataholders.finger import Finger
-from dataholders.mistake import (
-    Mistake,
-    Mistakes,
-    key_actual,
-    key_expected,
-    key_expected_combined,
-    key_expected_finger,
-)
+from dataholders.mistake import Mistake, Mistakes
+from statsfmt import configurable_format
 
 
 class Stats:
@@ -31,17 +23,18 @@ class Stats:
         self.mistakes.append(mistake)
 
     def exit_msg(self) -> str:
-        score_formatted = (
-            "{0}/{1}".format(self.score(), settings.max_score)
-            if self.score() >= 0
-            else text.unavailable
+        is_headers_only = settings.is_headers_only(self.mistakes_count())
+        is_compact = settings.is_compact(self.mistakes_count())
+        skip_if_less = settings.skip_if_less(self.mistakes_count())
+        mistakes_formatted = configurable_format(
+            self.mistakes, is_headers_only, is_compact, skip_if_less
         )
-        statistics = text.exit_msg.format(
+        statistics = text.exit_msg_stats.format(
             sybols_count=self.symbols_typed,
             error_count=self.mistakes_count(),
-            score=score_formatted,
+            score=self.score_formatted(),
         )
-        return statistics + "\n" + self.mistakes_formatted()
+        return "{0}\n{1}\n{2}".format(text.exit_msg, mistakes_formatted, statistics)
 
     def progress(self) -> Dict[str, int]:
         return {
@@ -63,61 +56,8 @@ class Stats:
             (1 - math.log(err_count + 1, self.symbols_typed)) * settings.max_score
         )
 
-    def mistakes_formatted(self) -> str:
-        result = ""
-        headers_only = self.mistakes_count() > 100
-        compact = 100 > self.mistakes_count() > 30
-        for finger, mistakes in _group_by_finger(self.mistakes):
-            header_message = (
-                text.finger_key_stat_message
-                if headers_only
-                else text.finger_key_stat_header
-            )
-            result += header_message.format(finger, len(mistakes))
-            if headers_only:
-                continue
-            for expected, group in _group_by_expected(mistakes):
-                actual = set("'{0}'".format(mistake.actual) for mistake in group)
-                result += text.expected_simple_stat.format(
-                    actual=", ".join(actual), expected=expected, times=len(group)
-                )
-                if compact and len(group) == 1:
-                    break
-            result += "\n"
-        return result
-
-
-def _group_by_finger(data: Mistakes) -> List[Tuple[Finger, Mistakes]]:
-    gpd = [
-        (finger, list(mistakes))
-        for finger, mistakes in groupby(
-            sorted(data, key=key_expected_combined),
-            key=key_expected_finger,
-        )
-    ]
-    return sorted(gpd, key=_by_group_size, reverse=True)
-
-
-def _group_by_mistake(data: Mistakes) -> List[Tuple[Mistake, Mistakes]]:
-
-    gpd = [
-        (mistake, list(group))
-        for mistake, group in groupby(sorted(data, key=key_actual))
-    ]
-    return sorted(gpd, key=_by_group_size_and_expected, reverse=True)
-
-
-def _group_by_expected(data: Mistakes) -> List[Tuple[str, Mistakes]]:
-    gpd = [
-        (mistake, list(group))
-        for mistake, group in groupby(sorted(data, key=key_expected), key=key_expected)
-    ]
-    return sorted(gpd, key=_by_group_size, reverse=True)
-
-
-def _by_group_size_and_expected(group: Tuple[Mistake, Mistakes]):
-    return (len(group[1]), group[0].expected)
-
-
-def _by_group_size(group: Tuple[Any, Mistakes]):
-    return len(group[1])
+    def score_formatted(self) -> str:
+        if self.score() >= 0:
+            return "{0}/{1}".format(self.score(), settings.max_score)
+        else:
+            return text.unavailable

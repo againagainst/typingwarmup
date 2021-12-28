@@ -4,11 +4,11 @@ from typing import Dict, Optional
 import settings
 
 app_name = "Typing Warmup"
-finger_key_stat_header = "With {0}, {1} errors:\n"
-finger_key_stat_message = "With {0}, {1} errors.\n"
-actual_expected_stat = "  '{actual}' instead of '{expected}, {times} times'\n"
-expected_actual_stat = "  instead of '{expected}' got {actual}: {times} times\n"
-expected_simple_stat = "{times: 3} errors typing '{expected}'\n"
+finger_header_semicolon = "With {0}, {1} errors:\n"
+finger_header_dot = "With {0}, {1} errors.\n"
+mistakes_detailed_stat = "  '{actual}' instead of '{expected}', {times} times\n"
+mistakes_compact_stat = "{times: 3} errors typing '{expected}'\n"
+skip_if_less_indication = "  ...\n"
 
 unknown_symbol = "⍰"
 end_of_line_symbols = {" ", "\t", "\n"}
@@ -19,8 +19,9 @@ arg_description = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
 )
 
-exit_msg = "All done! Typed: {sybols_count}, errors: {error_count}, score: {score}\n"
+exit_msg = "All done!"
 default_exit_msg = "Bye!"
+exit_msg_stats = "Typed: {sybols_count}, errors: {error_count}, score: {score}"
 
 
 def is_control_char(ch: str) -> bool:
