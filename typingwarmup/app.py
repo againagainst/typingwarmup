@@ -6,7 +6,7 @@ import disk
 import settings
 import text
 from args import ex_name_from_args
-from model import MenuModel, WarmupModel
+from model import WarmupModel
 from state import State
 from stats import Stats
 from ui import MenyUI, WarmupUI
@@ -18,7 +18,7 @@ def typing_warmup(stdscr) -> Optional[Stats]:
         ex_path = Path().resolve()  # cwd
     else:
         ex_path = disk.exercise_dir()
-        menu = MenyUI(stdscr, MenuModel.read_exercises(ex_path))
+        menu = MenyUI(stdscr, disk.list_files(ex_path))
         ex_name = menu.pick_name()
     ex_full_path = ex_path.joinpath(ex_name) if ex_name else None
     return warmup_screen(stdscr, ex_full_path) if ex_full_path else None
