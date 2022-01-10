@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 import analysis
 import disk
@@ -12,19 +11,20 @@ from stats import Stats
 from ui import MenyUI, WarmupUI
 
 
-def typing_warmup(stdscr) -> Optional[Stats]:
+def typing_warmup(stdscr) -> str:
     ex_name = ex_name_from_args()
-    if ex_name:
-        ex_path = Path().resolve()  # cwd
-    else:
-        ex_path = disk.exercise_dir()
+    ex_path = Path().resolve()  # cwd
+    if not ex_name:
         menu = MenyUI(stdscr, disk.list_files(ex_path))
         ex_name = menu.pick_name()
-    ex_full_path = ex_path.joinpath(ex_name) if ex_name else None
-    return warmup_screen(stdscr, ex_full_path) if ex_full_path else None
+        if not ex_name:
+            return text.default_exit_msg
+        ex_path = disk.exercise_dir()
+    ex_full_path = ex_path.joinpath(ex_name)
+    return warmup_screen(stdscr, ex_full_path)
 
 
-def warmup_screen(stdscr, excercise_path: Path) -> Stats:
+def warmup_screen(stdscr, excercise_path: Path) -> str:
     exercise_text = disk.read_exercise(excercise_path)
     model = WarmupModel(exercise_text)
     stats = Stats(exercise_length=len(exercise_text))
@@ -38,6 +38,7 @@ def warmup_screen(stdscr, excercise_path: Path) -> Stats:
         input_char = ui.input()
 
         if input_char == settings.exit_key:
+            stats.add_typed()
             break
 
         if state.wrong_input:
@@ -63,7 +64,7 @@ def warmup_screen(stdscr, excercise_path: Path) -> Stats:
             state.wrong_input = text.escape_key(input_char)
     ui.stop()
     analysis.persist(excercise_path, exercise_text, stats)
-    return stats
+    return stats.exit_msg()
 
 
 def is_skip_spaces(input_char: str, model: WarmupModel) -> bool:

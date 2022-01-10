@@ -6,7 +6,7 @@ from dataholders.finger import Finger
 from dataholders.mistake import Mistake, Mistakes
 
 
-def configurable_format(
+def mistakes_formatted(
     mistakes: Mistakes,
     only_headers: bool = False,
     compact: bool = True,

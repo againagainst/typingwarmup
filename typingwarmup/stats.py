@@ -2,9 +2,9 @@ import math
 from typing import Dict
 
 import settings
+import statsfmt
 import text
 from dataholders.mistake import Mistake, Mistakes
-from statsfmt import configurable_format
 
 
 class Stats:
@@ -26,7 +26,7 @@ class Stats:
         is_headers_only = settings.is_headers_only(self.mistakes_count())
         is_compact = settings.is_compact(self.mistakes_count())
         skip_if_less = settings.skip_if_less(self.mistakes_count())
-        mistakes_formatted = configurable_format(
+        mistakes_formatted = statsfmt.mistakes_formatted(
             self.mistakes, is_headers_only, is_compact, skip_if_less
         )
         statistics = text.exit_msg_stats.format(
