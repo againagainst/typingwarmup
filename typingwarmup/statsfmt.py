@@ -79,11 +79,11 @@ def group_by_expected(data: Mistakes) -> List[Tuple[str, Mistakes]]:
     return sorted(gpd, key=_key_group_size, reverse=True)
 
 
-def _key_group_size_and_actual(group: Tuple[Mistake, Mistakes]):
+def _key_group_size_and_actual(group: Tuple[Mistake, Mistakes]) -> Tuple[int, str]:
     return (len(group[1]), group[0].actual)
 
 
-def _key_group_size(group: Tuple[Any, Mistakes]):
+def _key_group_size(group: Tuple[Any, Mistakes]) -> int:
     return len(group[1])
 
 

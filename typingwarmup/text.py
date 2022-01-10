@@ -36,7 +36,7 @@ def status_bar(
     errors: Optional[int] = None,
     is_err_state: bool = False,
     progress: Optional[Dict] = None,
-):
+) -> str:
     messages = [
         app_name,
     ]

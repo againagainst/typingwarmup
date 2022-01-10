@@ -1,14 +1,17 @@
 import curses
+from _curses import _CursesWindow
 
 import settings
 from errors import TerminalSizeException
+
+CursesScreen = _CursesWindow
 
 
 class UI:
     status_color_pair = 1
     error_color_pair = 2
 
-    def __init__(self, stdscr):
+    def __init__(self, stdscr: CursesScreen):
         self.stdscr = stdscr
 
     def start(self) -> None:

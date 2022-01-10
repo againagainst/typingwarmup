@@ -1,4 +1,6 @@
+from _typeshed import StrPath
 from pathlib import Path
+from typing import Optional
 
 import analysis
 import disk
@@ -8,11 +10,11 @@ from args import ex_name_from_args
 from model import WarmupModel
 from state import State
 from stats import Stats
-from ui import MenyUI, WarmupUI
+from ui import MenyUI, WarmupUI, CursesScreen
 
 
-def typing_warmup(stdscr) -> str:
-    ex_name = ex_name_from_args()
+def typing_warmup(stdscr: CursesScreen) -> str:
+    ex_name: Optional[StrPath] = ex_name_from_args()
     ex_path = Path().resolve()  # cwd
     if not ex_name:
         menu = MenyUI(stdscr, disk.list_files(ex_path))
@@ -24,7 +26,7 @@ def typing_warmup(stdscr) -> str:
     return warmup_screen(stdscr, ex_full_path)
 
 
-def warmup_screen(stdscr, excercise_path: Path) -> str:
+def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
     exercise_text = disk.read_exercise(excercise_path)
     model = WarmupModel(exercise_text)
     stats = Stats(exercise_length=len(exercise_text))

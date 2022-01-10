@@ -5,7 +5,7 @@ import settings
 
 
 class WarmupModel:
-    def __init__(self, exercise_text: str, shuffle=False):
+    def __init__(self, exercise_text: str, shuffle: bool = False):
         if shuffle:
             exercise_text = shuffle_exercise(exercise_text)
         self.length = len(exercise_text)
