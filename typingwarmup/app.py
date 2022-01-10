@@ -1,6 +1,4 @@
-from _typeshed import StrPath
 from pathlib import Path
-from typing import Optional
 
 import analysis
 import disk
@@ -14,7 +12,7 @@ from ui import MenyUI, WarmupUI, CursesScreen
 
 
 def typing_warmup(stdscr: CursesScreen) -> str:
-    ex_name: Optional[StrPath] = ex_name_from_args()
+    ex_name = ex_name_from_args()
     ex_path = Path().resolve()  # cwd
     if not ex_name:
         menu = MenyUI(stdscr, disk.list_files(ex_path))
@@ -40,7 +38,6 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
         input_char = ui.input()
 
         if input_char == settings.exit_key:
-            stats.add_typed()
             break
 
         if state.wrong_input:

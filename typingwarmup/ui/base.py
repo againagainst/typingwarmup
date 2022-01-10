@@ -1,10 +1,18 @@
 import curses
-from _curses import _CursesWindow
-
 import settings
 from errors import TerminalSizeException
 
-CursesScreen = _CursesWindow
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _curses import _CursesWindow
+
+    CursesScreen = _CursesWindow
+else:
+    from typing import Any
+
+    CursesScreen = Any
 
 
 class UI:

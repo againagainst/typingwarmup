@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import text
 
@@ -16,6 +16,6 @@ parser.add_argument(
 parser.parse_args()
 
 
-def ex_name_from_args() -> Optional[Path]:
+def ex_name_from_args() -> Optional[Union[Path, str]]:
     args = parser.parse_args()
     return args.exercise
