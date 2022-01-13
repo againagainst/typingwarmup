@@ -2,6 +2,7 @@ exit_key = "KEY_F(10)"
 clear_key = "KEY_BACKSPACE"
 tab_key = "\t"
 skip_key = "KEY_RIGHT"
+end_of_line_symbols = {" ", "\t", "\n"}
 
 meny_up_key = "KEY_UP"
 meny_down_key = "KEY_DOWN"
@@ -28,8 +29,11 @@ bottom_padding = 1
 status_bar_rows = 1
 interface_rows = header_padding + bottom_padding + status_bar_rows
 minimum_text_rows = 2
-# App won't start if r,c = stdscr.getmaxyx(); r < minimum_rows
+# App won't start
+# if r < minimum_rows or c < minimum_cols
+# where r,c = stdscr.getmaxyx();
 minimum_rows = interface_rows + minimum_text_rows
+minimum_cols = 120
 
 # persistance
 db_filename = "db/stats.shelve"

@@ -78,5 +78,5 @@ def is_input_correct(input_char: str, model: WarmupModel) -> bool:
     if input_char == settings.skip_key:
         return True
     if settings.new_line_on_space and model.is_cursor_at_eol():
-        return input_char in text.end_of_line_symbols
+        return input_char in settings.end_of_line_symbols
     return model.cursor_char_equals(input_char)

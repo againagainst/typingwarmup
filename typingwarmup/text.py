@@ -11,7 +11,6 @@ mistakes_compact_stat = "{times: 3} errors typing '{expected}'\n"
 skip_if_less_indication = "  ...\n"
 
 unknown_symbol = "⍰"
-end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
 unavailable = "unavailable"
 

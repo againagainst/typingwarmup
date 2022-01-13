@@ -8,7 +8,7 @@ class ApplicationException(Exception):
     pass
 
 
-class TerminalSizeException(ApplicationException):
+class TerminalSizeRowsException(ApplicationException):
     def __init__(self, current_rows: int, *args: object) -> None:
         super().__init__(*args)
         self.current_rows = current_rows
@@ -16,6 +16,17 @@ class TerminalSizeException(ApplicationException):
     def __str__(self) -> str:
         return "Invalid terminal size. At least {0} rows required, got {1}.".format(
             settings.minimum_rows, self.current_rows
+        )
+
+
+class TerminalSizeColsException(ApplicationException):
+    def __init__(self, current_cols: int, *args: object) -> None:
+        super().__init__(*args)
+        self.current_cols = current_cols
+
+    def __str__(self) -> str:
+        return "Invalid terminal size. At least {0} cols required, got {1}.".format(
+            settings.minimum_cols, self.current_cols
         )
 
 

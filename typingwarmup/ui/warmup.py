@@ -31,17 +31,19 @@ class WarmupUI(UI):
 
         row = 0
         col = 0
+        pos = 0
         for char in self.model.page_before_cursor():
             self.render_bright(row, col, char)
-            row, col = self.move_render_cursor(row, col, char)
+            row, col, pos = self.move_render_cursor(row, col, pos, char)
 
         cursor_row = row
         cursor_col = col
-        row, col = self.move_render_cursor(row, col, self.model.cursor_char())
+        cursor_char = self.model.cursor_char()
+        row, col, pos = self.move_render_cursor(row, col, pos, cursor_char)
 
         for char in self.model.page_after_cursor():
             self.render_dimmed(row, col, char)
-            row, col = self.move_render_cursor(row, col, char)
+            row, col, pos = self.move_render_cursor(row, col, pos, char)
             if row > self.rows_awailable():
                 break
 
@@ -55,7 +57,7 @@ class WarmupUI(UI):
         if self.state.wrong_input:
             self.render_wrong_input(cursor_row, cursor_col, self.state.wrong_input)
         else:
-            self.render_cursor(cursor_row, cursor_col, self.model.cursor_char())
+            self.render_cursor(cursor_row, cursor_col)
 
     def render_dimmed(self, row: int, col: int, char: str) -> None:
         self.stdscr.addch(row, col, char, curses.A_DIM)
@@ -63,7 +65,8 @@ class WarmupUI(UI):
     def render_bright(self, row: int, col: int, char: str) -> None:
         self.stdscr.addch(row, col, char, curses.A_BOLD)
 
-    def render_cursor(self, row: int, col: int, char: str) -> None:
+    def render_cursor(self, row: int, col: int) -> None:
+        char: str = self.model.cursor_char()
         self.stdscr.addch(row, col, char, curses.A_DIM)
         self.stdscr.move(row, col)
 
@@ -79,8 +82,12 @@ class WarmupUI(UI):
     def cols_awailable(self) -> int:
         return self.max_col - 1
 
-    def move_render_cursor(self, row: int, col: int, char: str) -> Tuple[int, int]:
-        if char == "\n" or col == self.cols_awailable():
-            return (row + 1, 0)
+    def move_render_cursor(
+        self, row: int, col: int, pos: int, char: str
+    ) -> Tuple[int, int, int]:
+        len_to_break = self.model.len_to_next_break(pos)
+        is_wrap = (col + len_to_break) >= self.cols_awailable()
+        if char == "\n" or is_wrap:
+            return (row + 1, 0, pos + 1)
         else:
-            return (row, col + 1)
+            return (row, col + 1, pos + 1)

@@ -53,6 +53,15 @@ class WarmupModel:
         start = 1
         return list(range(start, settings.header_padding + start))
 
+    def len_to_next_break(self, start: int) -> int:
+        seek = start + 1
+        while (
+            seek < len(self.exercise)
+            and self.exercise[seek] not in settings.end_of_line_symbols
+        ):
+            seek += 1
+        return seek - start
+
 
 def shuffle_exercise(text: str) -> str:
     result = text.split("\n")

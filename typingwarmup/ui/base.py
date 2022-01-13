@@ -1,6 +1,6 @@
 import curses
 import settings
-from errors import TerminalSizeException
+from errors import TerminalSizeRowsException, TerminalSizeColsException
 
 
 from typing import TYPE_CHECKING
@@ -48,7 +48,9 @@ class UI:
     def resize(self) -> None:
         self.max_row, self.max_col = self.stdscr.getmaxyx()
         if self.max_row < settings.minimum_rows:
-            raise TerminalSizeException(self.max_row)
+            raise TerminalSizeRowsException(self.max_row)
+        if self.max_col < settings.minimum_cols:
+            raise TerminalSizeColsException(self.max_col)
 
     def render_line_in_status_bar(self, text: str) -> None:
         self.stdscr.attron(curses.color_pair(UI.status_color_pair))
