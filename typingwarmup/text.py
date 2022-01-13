@@ -28,7 +28,7 @@ def is_control_char(ch: str) -> bool:
 
 
 def menu_item(idx: int, name: str) -> str:
-    return "{0:>2}. {1}".format(idx + 1, name)
+    return " {0:>2}. {1}".format(idx + 1, name)
 
 
 def status_bar(

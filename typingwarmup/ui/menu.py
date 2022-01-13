@@ -1,6 +1,8 @@
 import curses
 import math
 from typing import List, Optional
+from contextlib import suppress
+
 
 import settings
 import text
@@ -17,7 +19,8 @@ class MenyUI(UI):
 
     def start(self) -> None:
         super().start()
-        curses.curs_set(0)
+        with suppress(Exception):
+            curses.curs_set(0)
 
     def pick_name(self) -> Optional[str]:
         input_char = ""
@@ -56,8 +59,9 @@ class MenyUI(UI):
         if self.page != self.pages() - 1:
             self.stdscr.addstr(last_line, 0, "...")
 
-        status = text.status_bar(errors=self.model_idx(self.cursor))
+        status = text.status_bar()
         self.render_line_in_status_bar(status)
+        self.stdscr.move(self.cursor + settings.meny_header_padding, 0)
 
     def up(self, page: bool = False) -> None:
         step = self.page_size() if page else 1
