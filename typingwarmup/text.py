@@ -14,8 +14,11 @@ unknown_symbol = "⍰"
 resize_event = "KEY_RESIZE"
 unavailable = "unavailable"
 
-arg_description = (
+help_exercise = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
+)
+help_nodb = (
+    "Optional. Do not store stats in history. Default is false."
 )
 
 exit_msg = "All done!"

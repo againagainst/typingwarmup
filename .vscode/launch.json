@@ -19,6 +19,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/exercises",
         },
         {
             "name": "warmup test",
@@ -27,7 +28,16 @@
             "program": "${workspaceFolder}/typingwarmup/main.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/exercises",
-            "args": ["test"]
+            "args": ["--nodb", "test"]
+        },
+        {
+            "name": "warmup Feynman",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/typingwarmup/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/exercises",
+            "args": ["--nodb", "Feynman"]
         },
         {
             "name": "warmup --help",

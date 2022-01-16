@@ -1,5 +1,4 @@
 import curses
-from typing import Tuple
 
 import settings
 import text
@@ -25,27 +24,26 @@ class WarmupUI(UI):
         # Causes exception if export xterm=color
         # curses.curs_set(1)
 
+    def resize(self) -> None:
+        super().resize()
+        self.model.resize(self.max_col)
+
     def render_model(self) -> None:
         self.clear()
-        self.resize()
 
-        row = 0
-        col = 0
-        pos = 0
-        for char in self.model.page_before_cursor():
-            self.render_bright(row, col, char)
-            row, col, pos = self.move_render_cursor(row, col, pos, char)
+        for row, row_text in enumerate(self.model.page_before_cursor()):
+            for col, char in enumerate(row_text):
+                self.render_bright(row, col, char)
 
-        cursor_row = row
-        cursor_col = col
-        cursor_char = self.model.cursor_char()
-        row, col, pos = self.move_render_cursor(row, col, pos, cursor_char)
+        cursor_row = self.model.cursor_row
+        cursor_col = self.model.cursor_col
 
-        for char in self.model.page_after_cursor():
-            self.render_dimmed(row, col, char)
-            row, col, pos = self.move_render_cursor(row, col, pos, char)
+        for row, row_text in enumerate(self.model.page_after_cursor(), cursor_row):
             if row > self.rows_awailable():
                 break
+            start_col = cursor_col + 1 if row == cursor_row else 0
+            for col, char in enumerate(row_text, start_col):
+                self.render_dimmed(row, col, char)
 
         status = text.status_bar(
             errors=self.stats.mistakes_count(),
@@ -81,13 +79,3 @@ class WarmupUI(UI):
 
     def cols_awailable(self) -> int:
         return self.max_col - 1
-
-    def move_render_cursor(
-        self, row: int, col: int, pos: int, char: str
-    ) -> Tuple[int, int, int]:
-        len_to_break = self.model.len_to_next_break(pos)
-        is_wrap = (col + len_to_break) >= self.cols_awailable()
-        if char == "\n" or is_wrap:
-            return (row + 1, 0, pos + 1)
-        else:
-            return (row, col + 1, pos + 1)

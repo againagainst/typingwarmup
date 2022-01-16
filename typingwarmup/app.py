@@ -4,7 +4,7 @@ import analysis
 import disk
 import settings
 import text
-from args import ex_name_from_args
+from args import cli_args
 from model import WarmupModel
 from state import State
 from stats import Stats
@@ -12,7 +12,7 @@ from ui import MenyUI, WarmupUI, CursesScreen
 
 
 def typing_warmup(stdscr: CursesScreen) -> str:
-    ex_name = ex_name_from_args()
+    ex_name = cli_args.exercise
     ex_path = Path().resolve()  # cwd
     if not ex_name:
         menu = MenyUI(stdscr, disk.list_files(ex_path))
@@ -53,7 +53,7 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
             stats.add_typed()
             model.next()
         elif input_char == text.resize_event:
-            pass
+            ui.resize()
         else:
             stats.add_mistake(
                 actual=input_char,
@@ -62,7 +62,8 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
             )
             state.wrong_input = text.escape_key(input_char)
     ui.stop()
-    analysis.persist(excercise_path, exercise_text, stats)
+    if not cli_args.ignore_results:
+        analysis.persist(excercise_path, exercise_text, stats)
     return stats.exit_msg()
 
 

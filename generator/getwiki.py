@@ -26,7 +26,7 @@ empty_header_re = re.compile(r"=+\s\w+\s=+\n\n\n")
 sticks_re = re.compile(r"[֊‐‑‒–—―⸺⸻﹘﹣－]")
 few_eols_re = re.compile(r"\n{2,}")
 few_spaces_re = re.compile(r"\ {2,}")
-no_space_re = re.compile(r"([.?!:;])(\w)")
+no_space_re = re.compile(r"([.?!;])(\w)")
 
 
 def random_featured_article_title() -> List[str]:

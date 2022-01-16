@@ -1,21 +1,23 @@
-import argparse
-from pathlib import Path
-from typing import Optional, Union
+from argparse import ArgumentParser, Namespace
 
 import text
 
 
-parser = argparse.ArgumentParser(description=text.app_name)
+parser = ArgumentParser(description=text.app_name)
 parser.add_argument(
     "exercise",
     nargs="?",
     type=str,
     default=None,
-    help=text.arg_description,
+    help=text.help_exercise,
 )
-parser.parse_args()
+parser.add_argument(
+    "-N",
+    "--nodb",
+    action="store_true",
+    default=False,
+    dest="ignore_results",
+    help=text.help_nodb,
+)
 
-
-def ex_name_from_args() -> Optional[Union[Path, str]]:
-    args = parser.parse_args()
-    return args.exercise
+cli_args: Namespace = parser.parse_args()
