@@ -26,6 +26,8 @@ new_line_on_space = False
 
 header_padding = 2
 bottom_padding = 1
+left_padding = 1
+right_padding = 2
 status_bar_rows = 1
 interface_rows = header_padding + bottom_padding + status_bar_rows
 minimum_text_rows = 2

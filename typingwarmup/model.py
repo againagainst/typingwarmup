@@ -1,16 +1,15 @@
 import random
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 import settings
 
 
 class WarmupModel:
     def __init__(self, exercise_text: str, shuffle: bool = False):
-        if shuffle:
-            exercise_text = shuffle_exercise(exercise_text)
-        self.length = len(exercise_text)
-
         self.exercise = exercise_text
+        if shuffle:
+            self.exercise = shuffle_exercise(self.exercise)
+        self.length = len(self.exercise)
         self.position = 0
         self.exercise_model: List[Tuple[int, int]] = []
         self.cursor_row = 0
@@ -24,27 +23,25 @@ class WarmupModel:
             self.cursor_row += 1
 
     def cursor_char(self) -> str:
-        return self.cursor_line()[self.cursor_col]
+        return self.cursor_line(self.cursor_col, self.cursor_col + 1)
 
-    def cursor_line(self) -> str:
+    def cursor_line(self, offset: int = 0, limit: Optional[int] = None) -> str:
         start, end = self.exercise_model[self.cursor_row]
-        return self.exercise[start:end]
+        result = self.exercise[start:end]
+        return result[offset:limit]
 
     def page_before_cursor(self, offset: int = 0) -> Iterable[str]:
         for start, end in self.exercise_model[offset : self.cursor_row]:
             yield self.exercise[start:end]
-        yield self.cursor_line()[: self.cursor_col]
+        yield self.cursor_line(limit=self.cursor_col)
 
     def page_after_cursor(self) -> Iterable[str]:
-        yield self.cursor_line()[self.cursor_col + 1 :]
+        yield self.cursor_line(offset=self.cursor_col + 1)
         for start, end in self.exercise_model[self.cursor_row + 1 :]:
             yield self.exercise[start:end]
 
     def cursor_char_equals(self, input_char: str) -> bool:
         return self.cursor_char() == input_char
-
-    def is_cursor_at_the_last_line(self) -> bool:
-        return self.cursor_row == len(self.exercise_model)
 
     def is_cursor_at_the_end_of_line(self) -> bool:
         start, end = self.exercise_model[self.cursor_row]
@@ -52,7 +49,7 @@ class WarmupModel:
         return self.cursor_col == cursor_line_length
 
     def is_cursor_at_the_end(self) -> bool:
-        return self.is_cursor_at_the_last_line() and self.is_cursor_at_the_end_of_line()
+        return self.cursor_row == len(self.exercise_model)
 
     def is_cursor_at_eol(self) -> bool:
         return self.cursor_char_equals("\n")
@@ -70,6 +67,9 @@ class WarmupModel:
             wrapped_idx = self.wrap(line_with_eol, size, offset)
             self.exercise_model.extend(wrapped_idx)
             _, offset = self.exercise_model[-1]
+
+        last_start, last_end = self.exercise_model[-1]
+        self.exercise_model[-1] = (last_start, last_end - 1)
         self.restore_cursor_position()
 
     def restore_cursor_position(self) -> None:

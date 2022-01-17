@@ -1,3 +1,4 @@
+from collections import namedtuple
 import curses
 import settings
 from errors import TerminalSizeRowsException, TerminalSizeColsException
@@ -13,6 +14,8 @@ else:
     from typing import Any
 
     CursesScreen = Any
+
+Padding = namedtuple("Padding", ["top", "right", "bottom", "left"])
 
 
 class UI:

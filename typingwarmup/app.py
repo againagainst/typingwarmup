@@ -48,10 +48,10 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
         elif is_skip_spaces(input_char, model):
             model.skip_spaces()
         elif is_input_correct(input_char, model):
-            if model.is_cursor_at_the_end():
-                break
             stats.add_typed()
             model.next()
+            if model.is_cursor_at_the_end():
+                break
         elif input_char == text.resize_event:
             ui.resize()
         else:
