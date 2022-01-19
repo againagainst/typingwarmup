@@ -31,6 +31,7 @@ right_padding = 2
 status_bar_rows = 1
 interface_rows = header_padding + bottom_padding + status_bar_rows
 minimum_text_rows = 2
+history_rows = 2
 # App won't start
 # if r < minimum_rows or c < minimum_cols
 # where r,c = stdscr.getmaxyx();

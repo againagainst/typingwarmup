@@ -9,9 +9,9 @@ class WarmupModel:
         self.exercise = exercise_text
         if shuffle:
             self.exercise = shuffle_exercise(self.exercise)
-        self.length = len(self.exercise)
         self.position = 0
         self.exercise_model: List[Tuple[int, int]] = []
+        self.rows = 0
         self.cursor_row = 0
         self.cursor_col = 0
 
@@ -23,19 +23,19 @@ class WarmupModel:
             self.cursor_row += 1
 
     def cursor_char(self) -> str:
-        return self.cursor_line(self.cursor_col, self.cursor_col + 1)
+        return self.cursor_line(offset=self.cursor_col, limit=self.cursor_col + 1)
 
     def cursor_line(self, offset: int = 0, limit: Optional[int] = None) -> str:
         start, end = self.exercise_model[self.cursor_row]
         result = self.exercise[start:end]
         return result[offset:limit]
 
-    def page_before_cursor(self, offset: int = 0) -> Iterable[str]:
+    def lines_before_cursor(self, offset: int = 0) -> Iterable[str]:
         for start, end in self.exercise_model[offset : self.cursor_row]:
             yield self.exercise[start:end]
         yield self.cursor_line(limit=self.cursor_col)
 
-    def page_after_cursor(self) -> Iterable[str]:
+    def lines_after_cursor(self) -> Iterable[str]:
         yield self.cursor_line(offset=self.cursor_col + 1)
         for start, end in self.exercise_model[self.cursor_row + 1 :]:
             yield self.exercise[start:end]
@@ -70,6 +70,7 @@ class WarmupModel:
 
         last_start, last_end = self.exercise_model[-1]
         self.exercise_model[-1] = (last_start, last_end - 1)
+        self.rows = len(self.exercise_model)
         self.restore_cursor_position()
 
     def restore_cursor_position(self) -> None:

@@ -18,12 +18,11 @@ class WarmupUI(UI):
         self.model = model
         self.state = state
         self.stats = stats
-        self.page = 0
 
         self.padding = Padding(
             settings.header_padding,
             settings.right_padding,
-            settings.bottom_padding + settings.status_bar_rows,
+            settings.bottom_padding,
             settings.left_padding,
         )
 
@@ -34,20 +33,22 @@ class WarmupUI(UI):
 
     def resize(self) -> None:
         super().resize()
-        self.model.resize(self.cols_awailable())
+        self.model.resize(self.cols_awailable() - 1)
 
     def render_model(self) -> None:
         self.clear()
 
         # render before cursor
+        history_lines = settings.history_rows if self.pagination_offset() else 0
+        offset = self.pagination_offset() - history_lines
+        text_before_cursor = list(self.model.lines_before_cursor(offset))
         start_row = self.padding.top
-        text_before_cursor = list(self.model.page_before_cursor())
         self.render_text(text_before_cursor, start_row, self.render_bright)
 
         # render after cursor
+        text_after_cursor = list(self.model.lines_after_cursor())
         start_row = self.padding.top + len(text_before_cursor) - 1
         start_col = self.padding.left + len(text_before_cursor[-1]) + 1
-        text_after_cursor = list(self.model.page_after_cursor())
         self.render_text(text_after_cursor, start_row, self.render_dimmed, start_col)
 
         # render status bar
@@ -59,7 +60,12 @@ class WarmupUI(UI):
         self.render_line_in_status_bar(status)
 
         # render cursor
-        cursor_row = self.model.cursor_row + self.padding.top
+        cursor_row = (
+            self.model.cursor_row
+            + self.padding.top
+            + history_lines
+            - self.pagination_offset()
+        )
         cursor_col = self.model.cursor_col + self.padding.left
         if self.state.wrong_input:
             self.render_wrong_input(cursor_row, cursor_col, self.state.wrong_input)
@@ -102,7 +108,20 @@ class WarmupUI(UI):
         self.stdscr.attroff(curses.color_pair(UI.error_color_pair))
 
     def rows_awailable(self) -> int:
-        return self.max_row - self.padding.top - self.padding.bottom
+        return (
+            self.max_row
+            - self.padding.top
+            - self.padding.bottom
+            - settings.status_bar_rows
+        )
 
     def cols_awailable(self) -> int:
-        return self.max_col - self.padding.left - self.padding.right - 1
+        return self.max_col - self.padding.left - self.padding.right
+
+    def pagination_offset(self) -> int:
+        page_size: int = self.rows_awailable()
+        if self.model.rows >= self.rows_awailable():
+            page_size = self.rows_awailable() * 2 // 3
+
+        page = self.model.cursor_row // page_size
+        return page_size * page
