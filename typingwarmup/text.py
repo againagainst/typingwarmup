@@ -9,7 +9,7 @@ finger_header_dot = "With {0}, {1} errors.\n"
 mistakes_detailed_stat = "  '{actual}' instead of '{expected}', {times} times\n"
 mistakes_compact_stat = "{times: 3} errors typing '{expected}'\n"
 skip_if_less_indication = "  ...\n"
-
+ellipsis = "…"
 unknown_symbol = "⍰"
 resize_event = "KEY_RESIZE"
 unavailable = "unavailable"
@@ -31,7 +31,7 @@ def is_control_char(ch: str) -> bool:
 
 
 def menu_item(idx: int, name: str) -> str:
-    return " {0:>2}. {1}".format(idx + 1, name)
+    return "{0:>2}. {1}".format(idx + 1, name)
 
 
 def status_bar(

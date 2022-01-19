@@ -9,8 +9,25 @@ meny_down_key = "KEY_DOWN"
 meny_page_up_key = "KEY_NPAGE"
 meny_page_down_key = "KEY_PPAGE"
 meny_enter_key = {"\n", "\x1b"}
+
+# padding
 meny_header_padding = 1
 meny_bottom_padding = 2
+meny_left_padding = 1
+meny_right_padding = 0
+
+header_padding = 2
+bottom_padding = 1
+left_padding = 1
+right_padding = 2
+status_bar_rows = 1
+minimum_text_rows = 2
+history_rows = 2
+# App won't start
+# if r < minimum_rows or c < minimum_cols
+# where r,c = stdscr.getmaxyx();
+minimum_rows = header_padding + bottom_padding + status_bar_rows + minimum_text_rows
+minimum_cols = 120
 
 exercise_dir_name = "exercises"
 
@@ -23,20 +40,6 @@ mistakes_skip_if_less_detailed = 0
 # skip_empty_rows = True # do we want this?
 tab_to_skip_spaces = True
 new_line_on_space = False
-
-header_padding = 2
-bottom_padding = 1
-left_padding = 1
-right_padding = 2
-status_bar_rows = 1
-interface_rows = header_padding + bottom_padding + status_bar_rows
-minimum_text_rows = 2
-history_rows = 2
-# App won't start
-# if r < minimum_rows or c < minimum_cols
-# where r,c = stdscr.getmaxyx();
-minimum_rows = interface_rows + minimum_text_rows
-minimum_cols = 120
 
 # persistance
 db_filename = "db/stats.shelve"

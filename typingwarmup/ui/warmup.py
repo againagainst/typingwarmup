@@ -1,5 +1,6 @@
 import curses
 from typing import Callable, List
+from contextlib import suppress
 
 import settings
 import text
@@ -29,7 +30,8 @@ class WarmupUI(UI):
     def start(self) -> None:
         super().start()
         # Causes exception if export xterm=color
-        # curses.curs_set(1)
+        with suppress(Exception):
+            curses.curs_set(1)
 
     def resize(self) -> None:
         super().resize()
@@ -50,6 +52,8 @@ class WarmupUI(UI):
         start_row = self.padding.top + len(text_before_cursor) - 1
         start_col = self.padding.left + len(text_before_cursor[-1]) + 1
         self.render_text(text_after_cursor, start_row, self.render_dimmed, start_col)
+        if len(text_after_cursor) > self.rows_awailable():
+            self.render_ellipsis()
 
         # render status bar
         status = text.status_bar(
@@ -80,7 +84,7 @@ class WarmupUI(UI):
         first_row_col: int = 0,
     ) -> None:
         for row, row_text in enumerate(text, start_row):
-            if row > self.rows_awailable():
+            if row >= self.rows_awailable():
                 break
             # TODO: render cursor line separately
             if first_row_col and row == start_row:
@@ -106,6 +110,10 @@ class WarmupUI(UI):
         self.stdscr.addch(row, col, wrong_input)
         self.stdscr.move(row, col)
         self.stdscr.attroff(curses.color_pair(UI.error_color_pair))
+
+    def render_ellipsis(self) -> None:
+        start_row = self.rows_awailable()
+        self.render_dimmed(start_row, self.padding.left, text.ellipsis)
 
     def rows_awailable(self) -> int:
         return (
