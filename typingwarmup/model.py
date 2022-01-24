@@ -49,7 +49,7 @@ class WarmupModel:
         return self.cursor_col == cursor_line_length
 
     def is_cursor_at_the_end(self) -> bool:
-        return self.cursor_row == len(self.exercise_model)
+        return self.position >= len(self.exercise)
 
     def is_cursor_at_eol(self) -> bool:
         return self.cursor_char_equals("\n")

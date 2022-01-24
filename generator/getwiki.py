@@ -93,6 +93,8 @@ def pages_to_articles(pages: Dict, size: int, limit: int) -> Dict[str, str]:
         text = few_eols_re.sub("\n", text)
         text = few_spaces_re.sub(" ", text)
         text = no_space_re.sub(r"\1 \2", text)
+        if not text.endswith("\n"):
+            text += "\n"
 
         result[title] = text
         logging.info("Done.")
