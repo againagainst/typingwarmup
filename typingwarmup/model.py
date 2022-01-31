@@ -23,20 +23,21 @@ class WarmupModel:
             self.cursor_row += 1
 
     def cursor_char(self) -> str:
-        return self.cursor_line(offset=self.cursor_col, limit=self.cursor_col + 1)
+        return self.exercise[self.position]
 
-    def cursor_line(self, offset: int = 0, limit: Optional[int] = None) -> str:
+    def cursor_line(self) -> str:
         start, end = self.exercise_model[self.cursor_row]
-        result = self.exercise[start:end]
-        return result[offset:limit]
+        return self.exercise[start:end]
 
     def lines_before_cursor(self, offset: int = 0) -> Iterable[str]:
         for start, end in self.exercise_model[offset : self.cursor_row]:
             yield self.exercise[start:end]
-        yield self.cursor_line(limit=self.cursor_col)
+        full_cursor_line = self.cursor_line()
+        yield full_cursor_line[:self.cursor_col]
 
     def lines_after_cursor(self) -> Iterable[str]:
-        yield self.cursor_line(offset=self.cursor_col + 1)
+        full_cursor_line = self.cursor_line()
+        yield full_cursor_line[self.cursor_col + 1:]
         for start, end in self.exercise_model[self.cursor_row + 1 :]:
             yield self.exercise[start:end]
 
