@@ -1,5 +1,5 @@
 import random
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, List, Tuple
 
 import settings
 
@@ -33,11 +33,11 @@ class WarmupModel:
         for start, end in self.exercise_model[offset : self.cursor_row]:
             yield self.exercise[start:end]
         full_cursor_line = self.cursor_line()
-        yield full_cursor_line[:self.cursor_col]
+        yield full_cursor_line[: self.cursor_col]
 
     def lines_after_cursor(self) -> Iterable[str]:
         full_cursor_line = self.cursor_line()
-        yield full_cursor_line[self.cursor_col + 1:]
+        yield full_cursor_line[self.cursor_col + 1 :]
         for start, end in self.exercise_model[self.cursor_row + 1 :]:
             yield self.exercise[start:end]
 
@@ -76,21 +76,23 @@ class WarmupModel:
 
     def restore_cursor_position(self) -> None:
         for row, (start, end) in enumerate(self.exercise_model):
-            if end >= self.position >= start:
+            if end > self.position >= start:
                 self.cursor_row = row
                 self.cursor_col = self.position - start
                 break
 
     @staticmethod
     def wrap(line: str, to_size: int, offset: int) -> List[Tuple[int, int]]:
+        wrap_symbols = settings.end_of_line_symbols
+        total = len(line)
         start = 0
         result: List[Tuple[int, int]] = []
-        while start < len(line):
-            end = min(start + to_size, len(line))
-            while line[end - 1] not in settings.end_of_line_symbols:
+        while start < total:
+            end = min(start + to_size, total)
+            while line[end - 1] not in wrap_symbols and total - start > to_size:
                 end -= 1
                 if end <= start:
-                    end = min(start + to_size, len(line))
+                    end = min(start + to_size, total)
                     break
             result.append((start + offset, end + offset))
             start = end
