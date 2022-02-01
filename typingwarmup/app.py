@@ -1,28 +1,38 @@
 from pathlib import Path
-from typing import Optional
 
+import analysis
+import disk
 import settings
 import text
 from args import ex_name_from_args
-from model import MenuModel, WarmupModel
+from model import WarmupModel
 from state import State
 from stats import Stats
-from ui import MenyUI, WarmupUI
+from ui import MenyUI, WarmupUI, CursesScreen
 
 
-def typing_warmup(stdscr) -> Optional[Stats]:
-    ex_full_path = resolve_ex_path(stdscr)
-    return warmup_screen(stdscr, ex_full_path) if ex_full_path else None
+def typing_warmup(stdscr: CursesScreen) -> str:
+    ex_name = ex_name_from_args()
+    ex_path = Path().resolve()  # cwd
+    if not ex_name:
+        menu = MenyUI(stdscr, disk.list_files(ex_path))
+        ex_name = menu.pick_name()
+        if not ex_name:
+            return text.default_exit_msg
+        ex_path = disk.exercise_dir()
+    ex_full_path = ex_path.joinpath(ex_name)
+    return warmup_screen(stdscr, ex_full_path)
 
 
-def warmup_screen(stdscr, excercise: Path) -> Stats:
-    model = WarmupModel(excercise)
+def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
+    exercise_text = disk.read_exercise(excercise_path)
+    model = WarmupModel(exercise_text)
+    stats = Stats(exercise_length=len(exercise_text))
     state = State()
-    stats = Stats()
-    input_char = ""
     ui = WarmupUI(stdscr, model, state, stats)
     ui.start()
 
+    input_char = ""
     while True:
         ui.render_model()
         input_char = ui.input()
@@ -45,15 +55,15 @@ def warmup_screen(stdscr, excercise: Path) -> Stats:
         elif input_char == text.resize_event:
             pass
         else:
-            stats.add_error(
+            stats.add_mistake(
                 actual=input_char,
                 expected=model.cursor_char(),
                 is_eol=model.is_cursor_at_eol(),
             )
             state.wrong_input = text.escape_key(input_char)
-
     ui.stop()
-    return stats
+    analysis.persist(excercise_path, exercise_text, stats)
+    return stats.exit_msg()
 
 
 def is_skip_spaces(input_char: str, model: WarmupModel) -> bool:
@@ -70,14 +80,3 @@ def is_input_correct(input_char: str, model: WarmupModel) -> bool:
     if settings.new_line_on_space and model.is_cursor_at_eol():
         return input_char in text.end_of_line_symbols
     return model.cursor_char_equals(input_char)
-
-
-def resolve_ex_path(stdscr) -> Optional[Path]:
-    ex_name = ex_name_from_args()
-    if ex_name:
-        ex_path = Path().resolve()  # cwd
-    else:
-        app_dir = Path(__file__).resolve().parents[1]
-        ex_path = app_dir.joinpath(settings.exercise_dir_name)
-        ex_name = MenyUI(stdscr, MenuModel.read_exercises(ex_path)).pick_name()
-    return ex_path.joinpath(ex_name) if ex_name else None

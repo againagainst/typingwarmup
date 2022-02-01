@@ -1,5 +1,6 @@
 # Local
 typingwarmup/scratch.py
+db/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -130,4 +131,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
 

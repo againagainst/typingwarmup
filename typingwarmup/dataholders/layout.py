@@ -1,17 +1,4 @@
-from enum import Enum
-
-
-class Finger(Enum):
-    left_pinky = "left pinky"
-    left_ring = "left ring"
-    left_middle = "left middle"
-    left_index = "left index"
-    any_thumb = "thumb"
-    right_index = "right index"
-    right_middle = "right middle"
-    right_ring = "right ring"
-    right_pinky = "right pinky"
-    other = "other"
+from dataholders.finger import Finger
 
 
 ISO = {

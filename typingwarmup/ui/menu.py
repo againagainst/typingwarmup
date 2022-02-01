@@ -5,11 +5,11 @@ from typing import List, Optional
 import settings
 import text
 
-from ui.base import UI
+from ui.base import UI, CursesScreen
 
 
 class MenyUI(UI):
-    def __init__(self, stdscr, exercises: List[str]):
+    def __init__(self, stdscr: CursesScreen, exercises: List[str]):
         super().__init__(stdscr)
         self.model = exercises
         self.cursor = 0
@@ -59,7 +59,7 @@ class MenyUI(UI):
         status = text.status_bar(errors=self.model_idx(self.cursor))
         self.render_line_in_status_bar(status)
 
-    def up(self, page: bool = False):
+    def up(self, page: bool = False) -> None:
         step = self.page_size() if page else 1
 
         if self.cursor - step < 0:
@@ -71,7 +71,7 @@ class MenyUI(UI):
         else:
             self.cursor -= step
 
-    def down(self, page: bool = False):
+    def down(self, page: bool = False) -> None:
         step = self.page_size() if page else 1
 
         if self.cursor + step >= self.meny_length():

@@ -1,17 +1,15 @@
 import curses
 
-import text
 from app import typing_warmup
 from errors import ApplicationException
 
 
-def main():
+def main() -> None:
     try:
-        stats = curses.wrapper(typing_warmup)
+        exit_msg = curses.wrapper(typing_warmup)
+        print(exit_msg)
     except ApplicationException as error:
         print(error)
-    else:
-        print(text.exit_msg(stats))
 
 
 if __name__ == "__main__":

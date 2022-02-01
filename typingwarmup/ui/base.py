@@ -1,14 +1,25 @@
 import curses
-
 import settings
 from errors import TerminalSizeException
+
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _curses import _CursesWindow
+
+    CursesScreen = _CursesWindow
+else:
+    from typing import Any
+
+    CursesScreen = Any
 
 
 class UI:
     status_color_pair = 1
     error_color_pair = 2
 
-    def __init__(self, stdscr):
+    def __init__(self, stdscr: CursesScreen):
         self.stdscr = stdscr
 
     def start(self) -> None:

@@ -7,11 +7,13 @@ from model import WarmupModel
 from state import State
 from stats import Stats
 
-from ui.base import UI
+from ui.base import UI, CursesScreen
 
 
 class WarmupUI(UI):
-    def __init__(self, stdscr, model: WarmupModel, state: State, stats: Stats):
+    def __init__(
+        self, stdscr: CursesScreen, model: WarmupModel, state: State, stats: Stats
+    ):
         super().__init__(stdscr)
         self.model = model
         self.state = state
@@ -44,9 +46,9 @@ class WarmupUI(UI):
                 break
 
         status = text.status_bar(
-            errors=self.stats.error_count(),
+            errors=self.stats.mistakes_count(),
             is_err_state=bool(self.state.wrong_input),
-            model=self.model,
+            progress=self.stats.progress(),
         )
         self.render_line_in_status_bar(status)
 
