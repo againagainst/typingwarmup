@@ -4,7 +4,7 @@ import analysis
 import disk
 import settings
 import text
-from args import ex_name_from_args
+from args import cli_args
 from model import WarmupModel
 from state import State
 from stats import Stats
@@ -12,7 +12,7 @@ from ui import MenyUI, WarmupUI, CursesScreen
 
 
 def typing_warmup(stdscr: CursesScreen) -> str:
-    ex_name = ex_name_from_args()
+    ex_name = cli_args.exercise
     ex_path = Path().resolve()  # cwd
     if not ex_name:
         menu = MenyUI(stdscr, disk.list_files(ex_path))
@@ -45,15 +45,15 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
                 state.wrong_input = None
             else:
                 continue
+        elif input_char == text.resize_event:
+            ui.resize()
         elif is_skip_spaces(input_char, model):
             model.skip_spaces()
         elif is_input_correct(input_char, model):
-            if model.is_cursor_at_the_end():
-                break
             stats.add_typed()
             model.next()
-        elif input_char == text.resize_event:
-            pass
+            if model.is_cursor_at_the_end():
+                break
         else:
             stats.add_mistake(
                 actual=input_char,
@@ -62,7 +62,8 @@ def warmup_screen(stdscr: CursesScreen, excercise_path: Path) -> str:
             )
             state.wrong_input = text.escape_key(input_char)
     ui.stop()
-    analysis.persist(excercise_path, exercise_text, stats)
+    if not cli_args.ignore_results:
+        analysis.persist(excercise_path, exercise_text, stats)
     return stats.exit_msg()
 
 
@@ -78,5 +79,5 @@ def is_input_correct(input_char: str, model: WarmupModel) -> bool:
     if input_char == settings.skip_key:
         return True
     if settings.new_line_on_space and model.is_cursor_at_eol():
-        return input_char in text.end_of_line_symbols
+        return input_char in settings.end_of_line_symbols
     return model.cursor_char_equals(input_char)

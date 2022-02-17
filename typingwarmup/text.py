@@ -9,14 +9,16 @@ finger_header_dot = "With {0}, {1} errors.\n"
 mistakes_detailed_stat = "  '{actual}' instead of '{expected}', {times} times\n"
 mistakes_compact_stat = "{times: 3} errors typing '{expected}'\n"
 skip_if_less_indication = "  ...\n"
-
+ellipsis = "…"
 unknown_symbol = "⍰"
-end_of_line_symbols = {" ", "\t", "\n"}
 resize_event = "KEY_RESIZE"
 unavailable = "unavailable"
 
-arg_description = (
+help_exercise = (
     "Optional. Name of the exercise; if not provided shows a meny to select."
+)
+help_nodb = (
+    "Optional. Do not store stats in history. Default is false."
 )
 
 exit_msg = "All done!"

@@ -1,11 +1,13 @@
 import curses
 import math
 from typing import List, Optional
+from contextlib import suppress
+
 
 import settings
 import text
 
-from ui.base import UI, CursesScreen
+from ui.base import UI, CursesScreen, Padding
 
 
 class MenyUI(UI):
@@ -14,10 +16,17 @@ class MenyUI(UI):
         self.model = exercises
         self.cursor = 0
         self.page = 0
+        self.padding = Padding(
+            settings.meny_header_padding,
+            settings.meny_right_padding,
+            settings.meny_bottom_padding,
+            settings.meny_left_padding,
+        )
 
     def start(self) -> None:
         super().start()
-        curses.curs_set(0)
+        with suppress(Exception):
+            curses.curs_set(0)
 
     def pick_name(self) -> Optional[str]:
         input_char = ""
@@ -44,20 +53,21 @@ class MenyUI(UI):
         self.clear()
         self.resize()
 
-        last_line = settings.meny_header_padding
+        last_line = self.padding.top
         for idx, name in enumerate(self.meny_items()):
             if idx == self.cursor:
                 self.stdscr.attron(curses.color_pair(UI.status_color_pair))
             item = text.menu_item(self.model_idx(idx), name)
-            self.stdscr.addstr(idx + settings.meny_header_padding, 0, item)
+            self.stdscr.addstr(idx + self.padding.top, self.padding.left, item)
             if idx == self.cursor:
                 self.stdscr.attroff(curses.color_pair(UI.status_color_pair))
             last_line += 1
         if self.page != self.pages() - 1:
-            self.stdscr.addstr(last_line, 0, "...")
+            self.stdscr.addstr(last_line, self.padding.left, text.ellipsis)
 
-        status = text.status_bar(errors=self.model_idx(self.cursor))
+        status = text.status_bar()
         self.render_line_in_status_bar(status)
+        self.stdscr.move(self.cursor + self.padding.top, self.padding.left)
 
     def up(self, page: bool = False) -> None:
         step = self.page_size() if page else 1
@@ -98,7 +108,12 @@ class MenyUI(UI):
         """
         All available rows - header_padding, bottom_padding, and status bar.
         """
-        return self.max_row - settings.interface_rows
+        return (
+            self.max_row
+            - self.padding.top
+            - self.padding.bottom
+            - settings.status_bar_rows
+        )
 
     def pages(self) -> int:
         return math.ceil(len(self.model) / self.page_size())

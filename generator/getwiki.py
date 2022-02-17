@@ -26,7 +26,7 @@ empty_header_re = re.compile(r"=+\s\w+\s=+\n\n\n")
 sticks_re = re.compile(r"[֊‐‑‒–—―⸺⸻﹘﹣－]")
 few_eols_re = re.compile(r"\n{2,}")
 few_spaces_re = re.compile(r"\ {2,}")
-no_space_re = re.compile(r"([.?!:;])(\w)")
+no_space_re = re.compile(r"([.?!;:])([^\d\s])")
 
 
 def random_featured_article_title() -> List[str]:
@@ -93,6 +93,8 @@ def pages_to_articles(pages: Dict, size: int, limit: int) -> Dict[str, str]:
         text = few_eols_re.sub("\n", text)
         text = few_spaces_re.sub(" ", text)
         text = no_space_re.sub(r"\1 \2", text)
+        if not text.endswith("\n"):
+            text += "\n"
 
         result[title] = text
         logging.info("Done.")
