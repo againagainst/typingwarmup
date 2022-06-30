@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import pathlib
 import re
 import unicodedata
 import urllib.parse
@@ -41,11 +42,11 @@ def random_featured_article_title() -> List[str]:
         method="POST",
     )
     with urllib.request.urlopen(req) as response:
-        article_param = urllib.parse.urlparse(response.url)
-        article_param_parsed = urllib.parse.parse_qs(article_param.query)
-        article_title = article_param_parsed["title"]
+        parse_result = urllib.parse.urlparse(response.url)
+        article_path = parse_result.path
+        article_title = article_path.replace("/wiki/", "")
         logging.info("It is: %s.", article_title)
-        return article_title
+        return [article_title]
 
 
 def featured_article_pages(article_titles: List[str]) -> Dict:
